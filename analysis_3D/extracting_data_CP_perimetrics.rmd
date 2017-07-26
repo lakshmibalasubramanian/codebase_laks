@@ -1,0 +1,134 @@
+---
+title: "3D analysis"
+author: "Lakshmi"
+date: "`r Sys.Date()`"
+output: 
+    html_document: 
+        code_folding: hide
+        fig_caption: yes
+        fig_height: 8
+        fig_width: 12
+        fontsize: 10pt
+        toc_float: 
+        collapsed: false    
+        smooth_scroll: FALSE
+---
+
+# Script detail
+
+Script for extracting data from cell profiler perimetrics output specifically from the CD13_MASK.csv. This script results in the master csv output for both 24 & 48 hpi
+
+```{r, message=FALSE, eval=TRUE}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+
+
+#Declaring the path
+base_path <- "/Users/lakshmibalasubramanian/Documents/Lakshmi/CellProfiler_Perimetrics/Output_Zstack"
+
+folders_hpi <- c(
+  "48hpi",
+  "24hpi",
+  "33hpi"
+ )
+
+```
+
+```{r, message=FALSE, eval=TRUE}
+ #Initialise an empty dataframes with the specified columns
+ 
+dat_tot_int <- 
+  data.frame(
+    Imagename=character(),
+    NumberFrames=numeric(),
+    NumberFrames_PVM=numeric(),
+    IntegratedIntensityCD13=double(),
+    Timepoint=character(),
+    Area_PVM=numeric()
+  )
+
+ dat_area_pvm <- 
+   data.frame(
+     Area=numeric(),
+     time_hpi=character()
+   )
+ 
+m=1
+i=1
+for (m in 1:length(folders_hpi)){
+  
+  file_names <- list.dirs(sprintf("%s/%s", base_path, folders_hpi[m]))
+  file_names <- file_names[-1]
+
+  #This command is to grep for a pattern (given in quotes) from file_names and replace with nothing
+  file_names1 <- gsub("/Users/lakshmibalasubramanian/Documents/Lakshmi/CellProfiler_Perimetrics/Output_Zstack", "",file_names)
+ 
+ 
+ for (i in 1:length(file_names))
+ {
+  #Reading the csv from the output folders
+  dat <- readr::read_csv(sprintf("%s/CD13_MASK.csv", file_names[i]))
+  
+  #This dataframe is to extract the number of frames in which PVM is segmented
+  dat_pvm <- readr::read_csv(sprintf("%s/Image.csv", file_names[i]))
+  
+  
+  #Renaming the column names in Image.csv with _seg as nothing since in few of 24hpi images output files this _seg is not there. This problem is because the pipelines that I used for both timepoints are not same & so the setting are also not same.
+  colnames(dat_pvm) <- gsub("_seg", "", colnames(dat_pvm))
+  
+  #Filtering the rows with atleast one PVM object has been identified
+  dat_pvm_filter <- 
+    dat_pvm %>%
+    filter(Count_UIS4 > 0)
+  
+  #calculating the number of frames in which PVM is segemented.
+  num_frames_pvm <- nrow(dat_pvm_filter)
+  
+  #Calculating the mean area of PVM (UIS4) for an image
+  area_pvm <- mean(dat_pvm$Mean_UIS4_AreaShape_Area, na.rm=TRUE)
+  
+  #Getting the area of PVM for each image from each frame
+  dat_area <-
+    dat_pvm %>%
+    select(contains("Mean_UIS4_AreaShape_Area")) 
+  
+  #Appending the new column i.e.timepoint
+  dat_area <- cbind(dat_area, folders_hpi[m])
+    
+  #This dataframe containes the grouped data. The dataframe can be grouped based on a column name (here   "ImageNumber"). Then summarising the grouped data by applying the function (here function used is "sum")  for as many columns as we need. In this case I am using Integrated intensity.
+  dat_cd13 <- dat %>%
+   group_by(ImageNumber) %>%
+   summarise_each_(funs(sum(.,na.rm=TRUE)),
+                  vars = c("Intensity_IntegratedIntensity_CD13"))
+ 
+  #Getting the number of frames (slices) in an image where CD13 mask is there
+  num_frames <- nrow(dat_cd13)
+  tot_int <- sum(dat_cd13$Intensity_IntegratedIntensity_CD13)
+  
+  # Selecting the required columns from a data frame using the column name matching (or pattern matching)   & storing these in a dataframe 
+  dat_filter <-
+   dat %>%
+    select(contains("Intensity_IntegratedIntensity_CD13"),
+         contains("ObjectNumber"))
+
+  #Appending all the data from all the images (including both timepoints)
+  dat_tot_int <- rbind(dat_tot_int, data.frame(file_names1[i],num_frames,num_frames_pvm,tot_int,folders_hpi[m],area_pvm))
+  
+  #Appending the two dataframes (combining the details of area of PVM from all the image files)
+  dat_area_pvm <- rbind(dat_area_pvm, data.frame(dat_area))
+ }
+  
+}
+ 
+ #Writing the csv file for the integrated intensity of CD13 on the PVM (using CP perimetrics) for both the time points
+ colnames(dat_tot_int) <- c("Imagename", "NumberFrames", "NumberFrames_PVM", "IntegratedIntensityCD13", "Timepoint", "AreaPVM(mean)")
+ write.csv(dat_tot_int, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/CellProfiler_Perimetrics/Analysis_CP_Perimetrics/Data_CP_perimetrics_master.csv")
+ 
+ #Writing the csv file for area of PVM from the Perimetrics data for both the timepoints
+ colnames(dat_area_pvm) <- c("Area_PVM", "Timepoint")
+ write.csv(dat_area_pvm, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/CellProfiler_Perimetrics/Analysis_CP_Perimetrics/Data_area_PVM_master.csv")
+```
+
+
+

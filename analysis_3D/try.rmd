@@ -1,0 +1,22 @@
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+```{r}
+base_path <- c("I:/Lakshmi/Surface_area_analysis_seg_editor/Surface_area_results/48h30mpi_S3_DAPI_UIS4_CD13_Ph647_20151213_63x_1z_1Z.czi_result")
+
+filenames_inf <-
+  c("statistics_inf_cell.csv",
+    "statistics_inf_surfacearea_BC.csv")
+
+dat_new <- list()
+print(length(filenames_inf))
+
+
+for(i in 1:length(filenames_inf)) {
+  dat_new[[i]] <- readr::read_csv(sprintf("%s/%s", base_path, filenames_inf[[i]]))
+}
+
+```

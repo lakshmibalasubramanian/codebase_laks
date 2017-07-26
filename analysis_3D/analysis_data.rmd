@@ -1,0 +1,135 @@
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+```{r}
+base_path <- "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Newfolder/New folder1"
+main_path <- "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Newfolder/New folder1"
+filenames <- list.dirs(base_path)
+filenames <- filenames[-1]
+#i=2
+for (i in 1:length(filenames)) {
+
+path <- c(filenames[i])
+nam <- list.files(base_path)
+nam_col <- nam[i]
+loca$File <- nam_col
+print(nam_col)
+
+#--------------Infected cell--------------------
+filenames_inf <-
+  c("statistics_inf_cell.csv",
+    "statistics_inf_surfacearea_BC.csv")
+
+dat_inf <- list()
+
+for(i in 1:length(filenames_inf)){
+  dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", path, filenames_inf[[i]]))
+}
+names(dat_inf) <- filenames_inf
+
+dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
+dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
+
+loca_inf <- 
+  
+  cbind(
+    lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
+    lapply(dat_saBC_inf, function(x) x[[3]] %>% sum()/2) %>% as.matrix(), 
+    lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
+  ) %>% as.data.frame()
+loca_inf <- plyr::colwise(as.numeric)(loca_inf)
+loca_inf$Status <- "INF"
+loca_inf$File <- nam_col
+colnames(loca_inf) <- c("cell_Vol", "saBC_SA", "saBC_SV" , "Status","File Name")
+
+
+#---------------PVM----------------------------
+
+file.rename(from = file.path(path, "statistics_PVM.csv"), to = file.path(path, "statistics_PVM_cell.csv"))
+
+filenames_pvm <-
+  c("statistics_PVM_cell.csv",
+    "statistics_PVM_surfacearea_BC.csv")
+
+dat_pvm <- list()
+
+for(i in 1:length(filenames_pvm)){
+  dat_pvm[[i]] <- readr::read_csv(sprintf("%s/%s", path, filenames_pvm[[i]]))
+}
+
+names(dat_pvm) <- filenames_pvm
+
+dat_cell_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
+dat_saBC_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+
+if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
+  dat_saBC_pvm[[1]][1,] <- 0 
+  dat_saBC_pvm[[1]] <- plyr::colwise(as.numeric)(dat_saBC_pvm[[1]])
+}
+
+
+loca_pvm <- 
+  cbind(
+    lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
+    lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(), 
+    lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()/2) %>% as.matrix()
+  ) %>% as.data.frame()
+
+
+loca_pvm <- plyr::colwise(as.numeric)(loca_pvm)
+loca_pvm$Status <- "PVM"
+loca_pvm$File <- nam_col
+colnames(loca_pvm) <- c("cell_Vol", "saBC_SA", "saBC_SV", "Status","File Name")
+
+
+#-----------------Uninfected hepatocytes (5 cells)--------------------
+filenames_uninf <- 
+  c("1statistics_uninf_cell.csv",
+    "1statistics_uninf_surfacearea_BC.csv",
+    "2statistics_uninf_cell.csv",
+    "2statistics_uninf_surfacearea_BC.csv",
+    "3statistics_uninf_cell.csv",
+    "3statistics_uninf_surfacearea_BC.csv",
+    "4statistics_uninf_cell.csv",
+    "4statistics_uninf_surfacearea_BC.csv",
+    "5statistics_uninf_cell.csv",
+    "5statistics_uninf_surfacearea_BC.csv")
+dat <- list()
+
+for(i in 1:length(filenames_uninf)) {
+  dat[[i]] <- readr::read_csv(sprintf("%s/%s", path, filenames_uninf[[i]]))
+}
+names(dat) <- filenames_uninf
+
+dat_cell <- dat[grep("cell", names(dat))]
+dat_saBC <- dat[grep("surfacearea_BC", names(dat))]
+dat_saBC[is.na(dat_saBC)] <- 0
+
+loca <- 
+cbind(
+  lapply(dat_cell, function(x) x[[2]]) %>% as.matrix(), 
+  lapply(dat_saBC, function(x) x[[3]] %>% sum()/2) %>% as.matrix(), 
+  lapply(dat_saBC, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
+) %>% 
+  as.data.frame()
+
+loca <- plyr::colwise(as.numeric)(loca)
+plyr::colwise(mean)(loca)
+loca$Status <- "UNINF"
+loca$File <- nam_col
+colnames(loca) <- c( "cell_Vol", "saBC_SA", "saBC_SV", "Status","File Name")
+#dat_saBC$`1statistics_uninf_surfacearea_BC.csv`[[4]] %>% sum()
+
+
+total <- rbind(loca_pvm,loca_inf,loca)
+write.csv(total, file = file.path(path,"results.csv"))
+colnames(total) <- c( "cell_Vol", "saBC_SA", "saBC_SV", "Status","File Name")
+write.table(total, file = file.path(main_path, "master_results.csv"), append=TRUE, sep = ",", col.names = FALSE)
+}
+
+```
+

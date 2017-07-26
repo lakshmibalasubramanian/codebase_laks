@@ -1,0 +1,62 @@
+```{r}
+dat <- readr::read_csv("graph.csv")
+```
+
+```{r}
+#Plot for the surface area of BC on infected and uninfected cells between 24 and 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(TimePoint, SurfaceArea_BC, fill = Status), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(TimePoint, y = SurfaceArea_BC, fill = Status, color = Status), cex = 0.9, alpha = 0.9, width = 0.5, height = 0.5) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=8)) + ylab("Surface Area of bile canaliculi on cells") +
+  ggplot2::ggsave("SA_BC_cells.png", width = 8, height = 8, units = "in", dpi = 300) +
+  ggsave("SA_BC_cells.svg", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for volume of the infected and uninfected cells between 24 and 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(TimePoint, Volume, fill = Status), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(TimePoint, y = Volume, fill = Status, color = Status), cex = 0.9, alpha = 0.9, width = 0.5, height = 0.5) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=8)) + ylab("Volume of the cells") +
+  ggplot2::ggsave("volume_cells.png", width = 8, height = 8, units = "in", dpi = 300) +
+  ggsave("volume_cells.svg", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for surface area of BC on PVM between 24 and 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(TimePoint, SurfaceArea_BC_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(TimePoint, y = SurfaceArea_BC_PVM), alpha = 0.9, width = 0.5, height = 0.5) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=8)) + ylab("Surface Area of bile canaliculi on PVM") +
+  ggplot2::ggsave("SA_BC_PVM.png", width = 8, height = 8, units = "in", dpi = 300) +
+  ggsave("SA_BC_PVM.svg", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+```{r}
+#Plot for volume of PVM between 24 and 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(TimePoint, Volume_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(TimePoint, y = Volume_PVM), alpha = 0.9, width = 0.5, height = 0.5) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=8)) + ylab("Volume of the PVM") +
+  ggplot2::ggsave("Volume_PVM.png", width = 8, height = 8, units = "in", dpi = 300) +
+  ggsave("Volume_PVM.svg", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for percentage of BC only on PVM between 24 and 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(TimePoint, Percentage_BC_only_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(TimePoint, y = Volume_PVM), alpha = 0.9, width = 0.5, height = 0.5) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=8)) + ylab("Percentage of BC only on PVM") +
+  ggplot2::ggsave("Percentage_BC_onlyPVM.png", width = 8, height = 8, units = "in", dpi = 300) +
+  ggsave("Percentage_BC_onlyPVM.svg", width = 8, height = 8, units = "in", dpi = 300)
+```

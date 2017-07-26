@@ -1,0 +1,154 @@
+```{r}
+# This script is to combine all the log.csv (log.txt) obtained from tubeness calculation for Bile canaliculai for salicylate experiment. All the data are combined to form a single master csv file & two other csv file (Output: salicylate_data_treated.csv, salicylate_data_untreated.csv, salicylate_data_master.csv)
+```
+
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+
+#Declaring the path
+data_path <- "I:/Lakshmi/Tubeness_infected_uninfected"
+
+# Creating the list
+folder_list <- 
+  c(
+    "20161020_Salicylate_23hpi_SA_Tubeness_results",
+    "20161024_Salicylate_24hpi_SA_Tubeness_results",
+    "20161028_Salicylate_25hpi_SA_Tubeness_results"
+  )
+```
+
+
+```{r}
+
+#Creating the empty dataframe
+dat_treated <- list(list())
+dat_untreated <- list(list())
+
+# This nested for loops goes into each of the directories(3 main folders) & reads the list files & go to the respective folder to pick data from each of the folder inside them
+
+#First loop is for the 3 main directories
+for (m in 1:length(folder_list)){
+  path_main <- sprintf("%s/%s", data_path, folder_list[m])  # This line keeps changing the path everytime
+  
+  print(path_main)
+  
+  # Two list files already exists in each of the main folders & this is the command to list them
+  list_status <-
+    c(
+      "list_treated",
+      "list_untreated"
+    )
+  
+  #This loops takes all the files (i.e. as same as image name) inside treated & untreated list 
+  for (k in 1:length(list_status)){
+    
+    images_list <- read.table(sprintf("%s/%s", path_main,list_status[k]),sep = "") %>% as.matrix() #Reading the list_treated as a table
+    
+    #This is a function to read to read all the parameters
+    func_append_parameters <- 
+      function(l){
+        
+        #Changing the path status to the exact requirement for both cases of treated & untreated
+        if (list_status[k] == "list_treated"){
+          path_status <- "Treated_results"
+        } else{
+          path_status <- "Untreated_results"
+        }
+        
+        # This is to list all the folders in the result file of each image i.e Treated_results\23hpi_sal_A_2.tif_result
+        tube_file_list <- list.dirs(sprintf("%s/%s/%s", path_main, path_status,images_list[[l]]), full.names = TRUE, recursive = TRUE)
+        tube_file_list1 <- list.dirs(sprintf("%s/%s/%s", path_main, path_status, images_list[[l]]), full.names = FALSE, recursive = TRUE)
+        tube_file_list2 <- list.dirs(sprintf("%s/%s", path_main, path_status), full.names = FALSE, recursive = FALSE)
+        tube_file_list1 <- tube_file_list1[-1] 
+        tube_file_list <- tube_file_list[-1] 
+        print(tube_file_list1)
+        #declaring the empty dataframe
+        parameters <- list(list())
+        
+        # This is the loop to fetch parameters from log.csv file from all the directories of each result file
+        for (i in 1:length(tube_file_list)){
+          
+          parameters[[i]] <- 
+            read.delim(
+              sprintf("%s/log.csv", tube_file_list[i]), 
+              header=FALSE) %>%
+            select(-V1, -V3) %>%  #This -V1/-V3 will deselect the first & third row
+            t() %>%               # This t is do the transpose of the matrix
+            as.data.frame()       # To combine as a data frame
+          
+        }
+        
+        #bind_rows will bind all the parameters & put it in a dataframe called append_parameters
+        append_parameters <- parameters %>% bind_rows()
+        
+        #Assigning the column names in the dataframe append_parameters
+        colnames(append_parameters) <-
+          c(
+            "Totallength",
+            "Numberofbranches",
+            "Averagebranchlength",
+            "TotalBCvolume",
+            "MeanBC(tube)diameter",
+            "MeanBC(tube)cross-section",
+            "Totalimagedvolume",
+            "VolumefractionoccupiedbyBC"
+          )
+         #Adding additional columns
+        append_parameters$Tubeness <- tube_file_list1
+        append_parameters$Image <- images_list[[l]]
+        append_parameters$Status <- list_status[k]
+        
+        
+        if(grepl("23hpi", path_main)){
+          append_parameters$HPI <- "23hpi"
+        }
+        
+        if(grepl("24hpi", path_main)){
+          append_parameters$HPI <- "24hpi"
+        }
+        
+        if(grepl("25hpi", path_main)){
+          append_parameters$HPI <- "25hpi"
+        }
+        
+        return(append_parameters)
+        
+      }
+    
+     #creating an empty dataframe
+    dat<-list()
+    
+    # Calling the function for all the image result file in a for loop & storing it in a dataframe
+    for(i in 1:length(images_list)){
+      dat[[i]] <- func_append_parameters(i)
+      
+    }
+    
+    #Combing the data based on the treated or untreated into separate dataframes as datframe[array in the loop]
+    if (list_status[k] == "list_treated"){
+      dat_treated[[m]] <- dat %>% bind_rows()
+    } 
+    if (list_status[k] == "list_untreated"){
+      
+      dat_untreated[[m]] <- dat %>% bind_rows()
+    }      
+    
+    
+  }
+} # Here the main loop ends
+
+#Combining all the dataframe arrays  of treated & untreated
+treated <- dat_treated %>% bind_rows()
+untreated <- dat_untreated %>% bind_rows()
+
+#combining both the data frames into single
+data_full <- rbind(treated,untreated)
+
+#Writing to seperate csv in the specified path
+write.csv(treated, file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_treated.csv")
+write.csv(untreated, file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_untreated.csv")
+write.csv(data_full, file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_master.csv")
+
+```

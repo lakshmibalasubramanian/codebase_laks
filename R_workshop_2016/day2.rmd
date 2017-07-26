@@ -1,0 +1,100 @@
+```{r}
+name = paste("gene-",seq(1:100),sep = "")
+name
+index = seq(101:200)
+index
+dat1 = rnorm(100,mean = 50, sd = 5)
+dat1
+dat1 = rnorm(100,mean = 50, sd = 5)
+dat2 = rnorm(100,mean = 20,sd =3)
+dat2 = round(dat2,digits = 2)
+dat2
+dat3 = dat1 + dat2
+
+dat4 = (dat1+dat2)*0.5
+dat4
+
+mydat = data.frame(name,index,dat1,dat2,dat3) //This is creating the dataframe with the vectors
+mydat
+
+View(mydat)
+getwd()
+setwd("E:/DATA/LAKSHMI/Varadha_lab/R_workshop_2016") //This is to set the working directory as current directory
+write.table(mydat,"datfile.txt", sep = '\t')
+write.table(mydat,"datfile.txt", sep = '\t', row.names = FALSE)
+data = read.table("datfile.txt", sep = "\t")
+View(data)
+data = read.table("datfile.txt", sep = "\t", header = TRUE) //if the first row is the column name give header as true
+
+dim(data) //Dimension of dataframe
+names(data) //Fetch the column names
+
+data[2,3]
+
+data[3,]
+    
+d = data[5:20,]
+write.table(d,"test.csv", sep = '\t')
+write.table(d,"test.txt", sep = '\t')
+help("write.csv")
+write.table(d,"test.txt", sep = '\t', row.names = FALSE)
+ 
+data$name
+
+dsum = (data$dat1 + data$dat2 + data$dat3) 
+dsum = (data$dat1 + data$dat2 + data$dat3) /3
+gm = (data$dat1 * data$dat2)^0.5
+data1 = data.frame(data,dsum,gm)
+
+
+
+dsum = (data$dat1 + data$dat2 + data$dat3) 
+dsum = (data$dat1 + data$dat2 + data$dat3) /3
+gm = (data$dat1 * data$dat2)^0.5
+data1 = data.frame(data,dsum,gm)
+mydata = read.table("microarray_data.txt")
+mydata
+
+mydata = read.table("microarray_data.txt", header = TRUE)
+names(mydata)
+mc = (mydata$C1 + mydata$C2 + mydata$C3 + mydata$C4 + mydata$C5)
+mt = (mydata$T1 + mydata$T2 + mydata$T3 + mydata$T4 + mydata$T5 + mydata$T6 + mydata$T7)/7
+fclog2 = log2(fc)
+plot(mydata$C1,mydata$C2,col = "red")
+plot(mydata$C2,mydata$C3,col = "red")
+plot(mydata$C3,mydata$CT5,col = "red")
+plot(mydata$C3,mydata$T5,col = "red")
+cor(mydata$C1, mydata$T1)
+
+fr = mydata[,2:15]
+m = as.matrix(fr)
+heatmap(m)
+rownames(m) =mydata$geneSymbol
+heatmap(m)
+
+
+str1 = "hi how are you"
+str2 = "fine"
+mylis = list(dat=mydata, mat = m, string =str1, string2 = str2)
+names(mylis)
+mylis$dat
+
+save(mylis,file ="little.RData")
+
+
+//This is to load the saved RData file
+load("little.RData")
+ls()
+names(mylis)
+str(mylis)
+
+
+//dataframe
+
+d = read.table("microarray_data.txt", header = TRUE)
+d
+fc = subset(d,d$C1>=9)
+fc
+fc2 = subset(d,(d$C1 + d$C2)>=20)
+fc2
+```{r}

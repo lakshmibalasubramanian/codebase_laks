@@ -1,0 +1,1147 @@
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(grid)
+library(gridExtra)
+library(lattice)
+library(cluster)
+```
+
+#----------------------------------------------------------------------------------------------------------------------------------
+#This chunk reads the master csv file and filters the data based on the requirement and forms various dataframes
+#----------------------------------------------------------------------------------------------------------------------------------
+
+```{r}
+# Read the csv file
+
+
+dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_master.csv")  # Input file i.e.csv: Change the input file accordingly 
+
+
+# Replacing the list_treated as Treated & similarly untreated also
+dat[dat=="list_treated"] <-"Treated"
+dat[dat=="list_untreated"] <-"Untreated"
+
+# Making the tubiness list as matrix from the column Tubeness (only unique elements)
+tubiness <- 
+  dat$Tubeness %>% 
+  unique() %>% 
+  matrix()
+
+#grep only the pattern from the tubiness list & puts in a new list
+tubiness_inf <- tubiness[grep("_inf_", tubiness)]
+tubiness_uninf <- tubiness[grep("_uninf_", tubiness)]
+
+#Assign the new empty column. Generate always the empty column and then later add elements in the column
+dat$Cell_status <- NA
+
+#Adding the elements ("inf" & "uninf") in the empty column
+dat$Cell_status[dat$Tubeness %in% tubiness_inf] <- "inf"
+dat$Cell_status[dat$Tubeness %in% tubiness_uninf] <- "uninf"
+
+#grep only the pattern from the tubiness list & puts in a new list
+pixel_3 <- tubiness[grep("_expand_3", tubiness)]
+pixel_5 <- tubiness[grep("_expand_5", tubiness)]
+pixel_7 <- tubiness[grep("_expand_7", tubiness)]
+pixel_0 <- tubiness[grep("_unexpand_", tubiness)]
+
+#Assign the new empty column. Generate always the empty column and then later add elements in the column
+dat$Pixel_expansion <- NA
+
+#Adding the elements ("5Pixel", "7Pixel", "0Pixel" & "3Pixel") in the empty column
+dat$Pixel_expansion[dat$Tubeness %in% pixel_3] <- "3Pixel"
+dat$Pixel_expansion[dat$Tubeness %in% pixel_5] <- "5Pixel"
+dat$Pixel_expansion[dat$Tubeness %in% pixel_7] <- "7Pixel"
+dat$Pixel_expansion[dat$Tubeness %in% pixel_0] <- "0Pixel"
+
+
+# Making following dataframes using filters
+dat_treated <- dat %>% dplyr::filter(dat$Status == "Treated")
+dat_untreated <- dat %>% dplyr::filter(dat$Status == "Untreated")
+
+dat_3pix <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel")
+dat_5pix <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel")
+dat_7pix <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel")
+dat_0pix <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel")
+
+dat_3pix_treated <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Treated")
+dat_3pix_untreated <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Untreated")
+dat_5pix_treated <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Treated")
+dat_5pix_untreated <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Untreated")
+dat_7pix_treated <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Treated")
+dat_7pix_untreated <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Untreated")
+dat_0pix_treated <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Treated")
+dat_0pix_untreated <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Untreated")
+
+dat_3pix_treated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Treated" & dat$Cell_status == "inf")
+dat_3pix_treated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Treated" & dat$Cell_status == "uninf")
+dat_3pix_untreated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Untreated" & dat$Cell_status == "inf")
+dat_3pix_untreated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "3Pixel" & dat$Status == "Untreated" & dat$Cell_status == "uninf")
+
+dat_5pix_treated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Treated" & dat$Cell_status == "inf")
+dat_5pix_treated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Treated" & dat$Cell_status == "uninf")
+dat_5pix_untreated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Untreated" & dat$Cell_status == "inf")
+dat_5pix_untreated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "5Pixel" & dat$Status == "Untreated" & dat$Cell_status == "uninf")
+
+dat_7pix_treated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Treated" & dat$Cell_status == "inf")
+dat_7pix_treated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Treated" & dat$Cell_status == "uninf")
+dat_7pix_untreated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Untreated" & dat$Cell_status == "inf")
+dat_7pix_untreated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "7Pixel" & dat$Status == "Untreated" & dat$Cell_status == "uninf")
+
+dat_0pix_treated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Treated" & dat$Cell_status == "inf")
+dat_0pix_treated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Treated" & dat$Cell_status == "uninf")
+dat_0pix_untreated_inf <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Untreated" & dat$Cell_status == "inf")
+dat_0pix_untreated_uninf <- dat %>% dplyr::filter(dat$Pixel_expansion == "0Pixel" & dat$Status == "Untreated" & dat$Cell_status == "uninf")
+
+```
+
+#----------------------------------------------------------------------------------------------------------------------------------
+#Below is the boxplots for the data (parameters) extracted from the segmented cells
+#----------------------------------------------------------------------------------------------------------------------------------
+
+#3Pixels expansion data (Boxplots)
+------------------------------
+```{r} 
+#Plot for the branch points (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_3pix_treated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_3pix_treated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_3pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_3pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_3pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_3pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("3Pixel expansion\n"),x = 1.5, y = max(Numberofbranches)-0.5), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Branch_Points_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the avg. branch length (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_3pix_treated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_3pix_treated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_3pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_3pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_3pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_3pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Averagebranchlength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Averagebranchlength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("3Pixel expansion\n"),x = 1.5, y = max(Averagebranchlength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Average branch length of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Avg_branch_length_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Avg_branch_length_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the diameter (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_3pix_treated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_3pix_treated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_3pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_3pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_3pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_3pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, `MeanBC(tube)diameter`, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = `MeanBC(tube)diameter`, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("3Pixel expansion\n"),x = 1.5, y = max(`MeanBC(tube)diameter`)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Diameter of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_diameter_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_diameter_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the volume (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_3pix_treated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_3pix_treated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_3pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_3pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_3pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_3pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, TotalBCvolume, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = TotalBCvolume, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("3Pixel expansion\n"),x = 1.5, y = max(TotalBCvolume)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_Vol_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_Vol_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the total length (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_3pix_treated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_3pix_treated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_3pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_3pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_3pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_3pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Totallength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Totallength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("3Pixel expansion\n"),x = 1.5, y = max(Totallength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_totleng_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_totleng_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+#5Pixels expansion data (Boxplots)
+------------------------------
+```{r} 
+#Plot for the branch points (5 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_5pix_treated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_5pix_treated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_5pix_untreated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_5pix_untreated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_5pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(Numberofbranches)-0.5), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Branch_Points_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the avg. branch length (5 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_5pix_treated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_5pix_treated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_5pix_untreated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_5pix_untreated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_5pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Averagebranchlength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Averagebranchlength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(Averagebranchlength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Average branch length of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Avg_branch_length_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Avg_branch_length_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the diameter (5 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_5pix_treated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_5pix_treated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_5pix_untreated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_5pix_untreated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_5pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, `MeanBC(tube)diameter`, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = `MeanBC(tube)diameter`, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(`MeanBC(tube)diameter`)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Diameter of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_diameter_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_diameter_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the volume (5 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_5pix_treated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_5pix_treated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_5pix_untreated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_5pix_untreated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_5pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, TotalBCvolume, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = TotalBCvolume, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(TotalBCvolume)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_Vol_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_Vol_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the total length (5 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_5pix_treated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_5pix_treated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_5pix_untreated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_5pix_untreated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_5pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Totallength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Totallength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(Totallength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_totleng_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_totleng_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+#7Pixels expansion data (Boxplots)
+------------------------------
+```{r} 
+#Plot for the branch points (7 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_7pix_treated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_7pix_treated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_7pix_untreated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_7pix_untreated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_7pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_7pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_7pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_7pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("7Pixel expansion\n"),x = 1.5, y = max(Numberofbranches)-0.5), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Branch_Points_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the avg. branch length (7 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_7pix_treated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_7pix_treated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_7pix_untreated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_7pix_untreated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_7pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_7pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_7pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_7pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Averagebranchlength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Averagebranchlength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("7Pixel expansion\n"),x = 1.5, y = max(Averagebranchlength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Average branch length of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Avg_branch_length_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Avg_branch_length_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the diameter (7 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_7pix_treated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_7pix_treated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_7pix_untreated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_7pix_untreated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_7pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_7pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_7pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_7pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, `MeanBC(tube)diameter`, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = `MeanBC(tube)diameter`, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("7Pixel expansion\n"),x = 1.5, y = max(`MeanBC(tube)diameter`)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Diameter of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_diameter_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_diameter_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the volume (7 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_7pix_treated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_7pix_treated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_7pix_untreated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_7pix_untreated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_7pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_7pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_7pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_7pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, TotalBCvolume, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = TotalBCvolume, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("7Pixel expansion\n"),x = 1.5, y = max(TotalBCvolume)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_Vol_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_Vol_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the total length (7 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_7pix_treated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_7pix_treated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_7pix_untreated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_7pix_untreated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_7pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_7pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_7pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_7pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Totallength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Totallength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("7Pixel expansion\n"),x = 1.5, y = max(Totallength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_totleng_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_totleng_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+#0Pixels expansion data (Boxplots)
+------------------------------
+```{r} 
+#Plot for the branch points (0 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_0pix_treated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_0pix_treated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_0pix_untreated_inf %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_0pix_untreated_uninf %>% dplyr::select(Numberofbranches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_0pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_0pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_0pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_0pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Numberofbranches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("0Pixel expansion\n"),x = 1.5, y = max(Numberofbranches)-0.5), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Branch_Points_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the avg. branch length (0 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_0pix_treated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_0pix_treated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_0pix_untreated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_0pix_untreated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_0pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_0pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_0pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_0pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Averagebranchlength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Averagebranchlength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Averagebranchlength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("0Pixel expansion\n"),x = 1.5, y = max(Averagebranchlength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Average branch length of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Avg_branch_length_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Avg_branch_length_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the diameter (0 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_0pix_treated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_0pix_treated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_0pix_untreated_inf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_0pix_untreated_uninf %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_0pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_0pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_0pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_0pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, `MeanBC(tube)diameter`, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = `MeanBC(tube)diameter`, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(`MeanBC(tube)diameter`)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("0Pixel expansion\n"),x = 1.5, y = max(`MeanBC(tube)diameter`)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Diameter of Bile canaliculi (microns)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_diameter_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_diameter_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the volume (0 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_0pix_treated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_0pix_treated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_0pix_untreated_inf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), dat_0pix_untreated_uninf %>% dplyr::select(TotalBCvolume) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_0pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_0pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_0pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_0pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, TotalBCvolume, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = TotalBCvolume, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(TotalBCvolume)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("0Pixel expansion\n"),x = 1.5, y = max(TotalBCvolume)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_Vol_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_Vol_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the total length (0 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_0pix_treated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_0pix_treated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_0pix_untreated_inf %>% dplyr::select(Totallength) %>% as.matrix(), dat_0pix_untreated_uninf %>% dplyr::select(Totallength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Status1 <- factor(dat_0pix$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Cell_status1 <- factor(dat_0pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_0pix$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_0pix) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Totallength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Totallength, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Totallength)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("0Pixel expansion\n"),x = 1.5, y = max(Totallength)), size = 3.5, colour = "blue") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi (microns^3)") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("BC_totleng_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_totleng_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+#Below is the density plots for the data (Each chunk corresponds to each parameters extracted from the segmented cells for salicylate treated condition)
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+
+#3Pixels expansion data (density plots for salicylate treated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_3pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(Treated)\n")), x = max(dat_3pix_treated$Numberofbranches)-5, y = 0.06, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_treat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_treat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_3pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(Treated)\n")), x = max(dat_3pix_treated$Averagebranchlength)-5, y = 0.2, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_3pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(Treated)\n")), x = max(dat_3pix_treated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_treat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_treat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_3pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(Treated)\n")), x = max(dat_3pix_treated$Totallength)-50, y = 0.01, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_treat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_treat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#5Pixels expansion data (density plots for salicylate treated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_5pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, dat_5pix_treated$Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(Treated)\n")), x = max(dat_5pix_treated$Numberofbranches)-10, y = 0.045, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi")
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_5pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(Treated)\n")), x = max(Averagebranchlength)-1, y = 0.35, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_5pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(Treated)\n")), x = max(`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_treat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_treat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_5pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(Treated)\n")), x = max(dat_5pix_treatedTotallength)-50, y = 0.0075, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_treat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_treat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#7Pixels expansion data (density plots for salicylate treated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_7pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(Treated)\n")), x = max(dat_7pix_treated$Numberofbranches)-10, y = 0.045, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_treat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_treat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_7pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(Treated)\n")), x = max(dat_7pix_treated$Averagebranchlength)-1, y = 0.2, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_7pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(Treated)\n")), x = max(dat_7pix_treated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_treat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_treat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_7pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(Treated)\n")), x = max(dat_7pix_treated$Totallength)-50, y = 0.0075, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_treat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_treat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#0Pixels expansion data (density plots for salicylate treated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_0pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(Treated)\n")), x = max(dat_0pix_treated$Numberofbranches)-5, y = 0.06, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_treat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_treat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_0pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(Treated)\n")), x = max(dat_0pix_treated$Averagebranchlength)-10, y = 0.08, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_treat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_0pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(Treated)\n")), x = max(dat_0pix_treated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_treat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_treat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_0pix_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(Treated)\n")), x = max(dat_0pix_treated$Totallength)-50, y = 0.01, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_treat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_treat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#Below is the density plots for the data (Each chunk corresponds to each parameters extracted from the segmented cells for salicylate untreated condition)
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+#3Pixels expansion data (density plots for salicylate untreated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_3pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(untreated)\n")), x = max(dat_3pix_untreated$Numberofbranches)-5, y = 0.06, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_untreat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_untreat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_3pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(untreated)\n")), x = max(dat_3pix_untreated$Averagebranchlength)-2, y = 0.2, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_3pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(untreated)\n")), x = max(dat_3pix_untreated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_untreat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_untreat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_3pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("3Pixel expansion\n(unreated)\n")), x = max(dat_3pix_untreated$Totallength)-100, y = 0.01, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_untreat_3pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_untreat_3pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#5Pixels expansion data (density plots for salicylate untreated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_5pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(unreated)\n")), x = max(dat_5pix_untreated$Numberofbranches)-10, y = 0.045, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_untreat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_untreat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_5pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(untreated)\n")), x = max(dat_5pix_untreated$Averagebranchlength)-1, y = 0.35, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_5pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(untreated)\n")), x = max(dat_5pix_untreated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_untreat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_untreat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_5pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("5Pixel expansion\n(untreated)\n")), x = max(dat_5pix_untreated$Totallength)-50, y = 0.0075, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_untreat_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_untreat_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#7Pixels expansion data (density plots for salicylate untreated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_7pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(untreated)\n")), x = max(dat_7pix_untreated$Numberofbranches)-20, y = 0.06, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_untreat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_untreat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_7pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(untreated)\n")), x = max(dat_7pix_untreated$Averagebranchlength)-2, y = 0.2, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_7pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(untreated)\n")), x = max(dat_7pix_untreated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_untreat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_untreat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_7pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("7Pixel expansion\n(unreated)\n")), x = max(dat_7pix_untreated$Totallength)-100, y = 0.007, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_untreat_7pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_untreat_7pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+#0Pixels expansion data (density plots for salicylate untreated)
+------------------------------
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_0pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Numberofbranches, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(untreated)\n")), x = max(dat_0pix_untreated$Numberofbranches)-5, y = 0.06, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Dens_Branch_untreat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Branch_untreat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_0pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Averagebranchlength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(untreated)\n")), x = max(dat_0pix_untreated$Averagebranchlength)-10, y = 0.07, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_Avg_bran_leng_untreat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_0pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, `MeanBC(tube)diameter`, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(untreated)\n")), x = max(dat_0pix_untreated$`MeanBC(tube)diameter`)-0.4, y = 1.5, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_dia_untreat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_dia_untreat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Totallength of BC)
+ggplot2::ggplot(dat_0pix_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Cell_status, Totallength, color = Cell_status, fill = Cell_status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  geom_text(aes(label = sprintf("0Pixel expansion\n(unreated)\n")), x = max(dat_0pix_untreated$Totallength)-50, y = 0.01, size = 3.5, colour = "blue") +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Total length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Dens_leng_untreat_0pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Dens_length_untreat_0pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_densityplots_pix_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+```{r} 
+#Plot for the branch points (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_treated$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_boxplot(ggplot2::aes(Pixel_expansion, dat_treated$Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Pixel_expansion, y = dat_treated$Numberofbranches, color = Cell_status), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treated") +
+  ggplot2::ggsave("Branch_Points_treated_all.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_treated_all.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the branch points (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_treated$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_boxplot(ggplot2::aes(Pixel_expansion, dat_treated$Totallength, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Pixel_expansion, y = dat_treated$Totallength, color = Cell_status), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi") + xlab("Salicylate treated") +
+  ggplot2::ggsave("Total_leng_treated_all.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Total_leng_treated_all.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+```{r} 
+#Plot for the branch points (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_untreated$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_boxplot(ggplot2::aes(Pixel_expansion, dat_untreated$Numberofbranches, fill = Cell_status), alpha = 0.0, size = 0.6, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Pixel_expansion, y = dat_untreated$Numberofbranches, color = Cell_status), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate untreated") +
+  ggplot2::ggsave("Branch_Points_untreat_all.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_untreat_all.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r} 
+#Plot for the branch points (3 Pixels) of BC on salicylate treated and nontreated for infected and uninfected cells
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat_untreated$Cell_status,values = c("Turquoise4", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_boxplot(ggplot2::aes(Pixel_expansion, dat_untreated$Totallength, fill = Cell_status), size = 0.6, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Pixel_expansion, y = dat_untreated$Totallength, color = Cell_status), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total length of Bile canaliculi") + xlab("Salicylate untreated") +
+  ggplot2::ggsave("Total_leng_untreat_all.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Total_leng_untreat_all.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+
+
+
+
+```{r}
+# KS.test for the density plots for all the parameters with 5 pix
+ks_NoBran_treated <- ks.test(dat_5pix_treated_inf$Numberofbranches, dat_5pix_treated_uninf$Numberofbranches)
+ks_NoBran_untreated <- ks.test(dat_5pix_untreated_inf$Numberofbranches, dat_5pix_untreated_uninf$Numberofbranches)
+
+ks_TotLen_treated <- ks.test(dat_5pix_treated_inf$Totallength, dat_5pix_treated_uninf$Totallength)
+ks_TotLen_untreated <- ks.test(dat_5pix_untreated_inf$Totallength, dat_5pix_untreated_uninf$Totallength)
+
+ks_Dia_treated <- ks.test(dat_5pix_treated_inf$`MeanBC(tube)diameter`, dat_5pix_treated_uninf$`MeanBC(tube)diameter`)
+ks_Dia_untreated <- ks.test(dat_5pix_untreated_inf$`MeanBC(tube)diameter`, dat_5pix_untreated_uninf$`MeanBC(tube)diameter`)
+
+ks_AvgBranLeng_treated <- ks.test(dat_5pix_treated_inf$Averagebranchlength, dat_5pix_treated_uninf$Averagebranchlength)
+ks_AvgBranLeng_untreated <- ks.test(dat_5pix_untreated_inf$Averagebranchlength, dat_5pix_untreated_uninf$Averagebranchlength)
+
+
+```

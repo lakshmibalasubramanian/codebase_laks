@@ -1,0 +1,54 @@
+```{r}
+dat <- readr::read_csv("I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/graph_dresden.csv")
+```
+
+```{r}
+#Plot for the surface area of BC on infected and uninfected cells
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, SurfaceArea_BC, fill = Status), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5),varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = SurfaceArea_BC, fill = Status, color = Status), cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.4,0.4,0.5)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total number of surface voxels on bile canaliculi of hepatocytes") +
+  ggplot2::ggsave("SA_BC_cells_dresden.png", path = "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Results_graphs", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for volume of the infected and uninfected cells
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, Volume, fill = Status), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = Volume, fill = Status, color = Status), cex = 0.7, alpha = 0.9,  position = position_jitterdodge(0.4,0.4,0.5)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of the cells (micron^3)") +
+  ggplot2::ggsave("volume_cells_dresden.png", path = "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Results_graphs", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for surface area of BC on PVM
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, SurfaceArea_BC_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = SurfaceArea_BC_PVM), alpha = 0.9, width = 0.4, height = 0.4) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Total number of surface voxels on bile canaliculi of PVM") +
+  ggplot2::ggsave("SA_BC_PVM_dresden.png", path = "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Results_graphs", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for volume of PVM at 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, Volume_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = Volume_PVM), alpha = 0.9, width = 0.4, height = 0.4) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of the PVM (micron^3)") +
+  ggplot2::ggsave("Volume_PVM_dresden.png", path = "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Results_graphs", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for percentage of BC only on PVM at 48hpi
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, Percentage_BC_only_PVM), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.5), varwidth = T, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = Percentage_BC_only_PVM), alpha = 0.9, width = 0.4, height = 0.4) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=6, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Percentage of BC only on PVM") +
+  ggplot2::ggsave("Percentage_BC_onlyPVM_dresden.png", path = "I:/Lakshmi/Surface_area_analysis_seg_editor/Dresden_images_results/Results_graphs", width = 8, height = 8, units = "in", dpi = 300)
+```
