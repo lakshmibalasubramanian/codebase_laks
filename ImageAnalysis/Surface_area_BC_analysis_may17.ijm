@@ -25,7 +25,7 @@ open(filepath);
 selectWindow(image);
 run("Duplicate...", "title=dupli_image duplicate");
 run("Split Channels");
-selectWindow("C4-dupli_image"); //$ DAPI channel
+selectWindow("C3-dupli_image"); //$ DAPI channel
 close();
 selectWindow(image);
 close();
@@ -34,7 +34,7 @@ close();
 
 //Choose CD13 channel (BC). Preprocessing steps for the image. Thersholding BC
 
-selectWindow("C2-dupli_image"); //$ CD13/BC channel
+selectWindow("C1-dupli_image"); //$ CD13/BC channel
 run("Green");
 run("Smooth", "stack");
 run("Smooth", "stack");
@@ -50,13 +50,13 @@ run("Fill Holes", "stack");
 
 //Saving the thresholded BC as avi file. Not saving it a tif because, the saved tif is not able to be used for further steps directly & also its file size is higher than avi.
 
-run("AVI... ", "frame=10 save=["+output1+"C2-dupli_image.avi]"); //$ CD13/BC channel
+run("AVI... ", "frame=10 save=["+output1+"C1-dupli_image.avi]"); //$ CD13/BC channel
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Segmentation of PVM using segmentation editor; Saving the obtained results file (volume of the PVM, Surface area of bile canaliculi on PVM) as .csv in the output folder
 
-selectWindow("C1-dupli_image"); //$ UIS4/PVM channel
+selectWindow("C2-dupli_image"); //$ UIS4/PVM channel
 run("Red");
 run("Smooth", "stack");
 run("Smooth", "stack");
@@ -64,7 +64,7 @@ setTool("freehand");
 waitForUser("Segmentation Editor: Segment the PVM", "(1)Uncheck 3D option (2)Segment PVM manually from few random slices (3)Click 'I' (4)Check 3D (5)Click '+' (6)Finally click OK"); 
 run("Segmentation Editor");
 wait(1000);
-selectWindow("C1-dupli_image.labels");
+selectWindow("C2-dupli_image.labels"); //$ UIS4/PVM channel
 rename("PVM.labels");
 
 //Saving the segmented PVM as a mask
@@ -75,7 +75,7 @@ run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects s
 selectWindow("Statistics for PVM.labels");
 saveAs("Results", output1+"statistics_PVM.csv"); 
 selectWindow("PVM.labels");
-imageCalculator("Subtract create stack", "PVM.labels","C2-dupli_image"); //$ CD13/PVM channel
+imageCalculator("Subtract create stack", "PVM.labels","C1-dupli_image"); //$ CD13/BC channel
 selectWindow("Result of PVM.labels");
 rename("Result of PVM.labels1");
 close("Result of PVM.labels");
@@ -88,12 +88,19 @@ run("AVI... ", "compression=JPEG frame=10 save=["+output1+"PVM_BC_surface.avi]")
 
 close("Result of PVM.labels");
 selectWindow("PVM_BC_surface");
-run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
+getStatistics(area, mean, min, max, std, histogram);
+if (max < 128) threshold = max;
+else threshold = 128;
+print ("Using threshold of " + threshold);
+run("3D Objects Counter", "threshold=" + threshold +
+      " slice=50 min.=10 max.=2124276 " +
+      "objects surfaces centroids centres_of_masses statistics summary");
+//run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 selectWindow("Statistics for PVM_BC_surface");
 saveAs("Results",output1+"statistics_PVM_surfacearea_BC.csv");
 
 //Closing all the windows that are opened during the processing of 3D object counter. If these windows are opened it consumes lot of memory & further processing becomes difficult.
-close("C1-dupli_image"); //$ UIS4/PVM channel
+close("C2-dupli_image"); //$ UIS4/PVM channel
 close("PVM.labels");
 close("Objects map of PVM.labels");
 close("Surface map of PVM.labels");
@@ -109,12 +116,16 @@ close("Centres of mass map of PVM_BC_surface");
 
 //Segmentation of infected cell using segmentation editor; Saving the obtained results file (volume of the cell, Surface area of bile canaliculi) as .csv in the output folder
 
-selectWindow("C3-dupli_image"); //$ Phalloidin channel
+selectWindow("C4-dupli_image"); //$ Phalloidin channel
+run("Median (3D)");
+close("C4-dupli_image");     //$ Phalloidin channel
+selectWindow("Median of C4-dupli_image"); //$ Phalloidin channel
+rename("C4-dupli_image");   //$ Phalloidin channel
 setTool("freehand");
 waitForUser("Segmentation Editor: Segment infected cell", "(1)Uncheck 3D option (2)Segment infected cell manually from few random slices (3)Click 'I' (4)Check 3D (5)Click '+' (6)Finally click OK"); 
 run("Segmentation Editor");
 wait(1000);
-selectWindow("C3-dupli_image.labels"); //$ Phalloidin channel
+selectWindow("C4-dupli_image.labels"); //$ Phalloidin channel
 rename("Infected_cell.labels");
 
 //Saving the segmented infected hepatocyte cell as a mask
@@ -125,7 +136,7 @@ run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects s
 selectWindow("Statistics for Infected_cell.labels");
 saveAs("Results", output1+"statistics_inf_cell.csv"); 
 selectWindow("Infected_cell.labels");
-imageCalculator("Subtract create stack", "Infected_cell.labels","C2-dupli_image"); //$ CD13/PVM channel
+imageCalculator("Subtract create stack", "Infected_cell.labels","C1-dupli_image"); //$ CD13/BC channel
 selectWindow("Result of Infected_cell.labels");
 rename("Result of Infected_cell.labels1");
 close("Result of Infected_cell.labels");
@@ -153,6 +164,8 @@ close("Objects map of Infec_Cells_BC_surface");
 close("Surface map of Infec_Cells_BC_surface");
 close("Centroids map of Infec_Cells_BC_surface");
 close("Centres of mass map of Infec_Cells_BC_surface");
+selectWindow("C4-dupli_image-1"); //$ Phalloidin channel
+rename("C4-dupli_image");     //$ Phalloidin channel
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -163,12 +176,12 @@ close("Centres of mass map of Infec_Cells_BC_surface");
 for(i=0;i<5;i++)
 {   
 	n=i+1;
-	selectWindow("C3-dupli_image"); //$ Phalloidin channel
+	selectWindow("C4-dupli_image"); //$ Phalloidin channel
 	setTool("freehand");
 	waitForUser("Segmentation editor:Segment uninf cell"+n, "(1)Uncheck 3D option (2)Segment cell of interest manually from few random slices (3)Click 'I' (4)Check 3D (5)Click '+' (6)Finally click OK"); 
 	run("Segmentation Editor");
 	wait(1000);
-	selectWindow("C3-dupli_image.labels"); //$ Phalloidin channel
+	selectWindow("C4-dupli_image.labels"); //$ Phalloidin channel
 	rename(n+"Uninfected_cell.labels");
 	
 	//Saving the segmented unfected hepatocyte cell as a mask
@@ -179,7 +192,7 @@ for(i=0;i<5;i++)
 	selectWindow("Statistics for "+name);
 	saveAs("Results", output1+n+"statistics_uninf_cell.csv"); 
 	selectWindow(n+"Uninfected_cell.labels");
-	imageCalculator("Subtract create stack", ""+n+"Uninfected_cell.labels","C2-dupli_image"); //$ CD13/BC channel
+	imageCalculator("Subtract create stack", ""+n+"Uninfected_cell.labels","C1-dupli_image"); //$ CD13/BC channel
 	selectWindow("Result of "+name);
 	rename("Result of "+name+"1");
 	close("Result of "+name);
@@ -190,7 +203,7 @@ for(i=0;i<5;i++)
     //Saving the BC mask that is on the surface of the unfected hepatocyte
 	run("AVI... ", "compression=JPEG frame=10 save=["+output1+n+"Uninf_Cells_BC_surface.avi]");
 	
-	close("Result of C3-dupli_image.labels"); //$ Phalloidin channel
+	close("Result of C4-dupli_image.labels"); //$ Phalloidin channel
 	selectWindow(n+"Uninf_Cells_BC_surface");
 	run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 	name_new = ""+n+"Uninf_Cells_BC_surface";
