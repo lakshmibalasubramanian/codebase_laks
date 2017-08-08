@@ -1,4 +1,4 @@
-//This program helps to count parasite
+//This program helps to count parasite 
 
 
 filepath=File.openDialog("Select input image"); 
