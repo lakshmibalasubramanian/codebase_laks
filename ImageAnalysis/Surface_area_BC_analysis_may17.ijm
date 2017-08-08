@@ -115,7 +115,7 @@ close("Centres of mass map of PVM_BC_surface");
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Segmentation of infected cell using segmentation editor; Saving the obtained results file (volume of the cell, Surface area of bile canaliculi) as .csv in the output folder
-
+//3D median filter is to smoothen the phalloidin channel
 selectWindow("C4-dupli_image"); //$ Phalloidin channel
 run("Median (3D)");
 close("C4-dupli_image");     //$ Phalloidin channel
