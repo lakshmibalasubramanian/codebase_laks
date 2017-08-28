@@ -34,7 +34,7 @@ close();
 
 //Choose CD13 channel (BC). Preprocessing steps for the image. Thersholding BC
 
-selectWindow("C2-dupli_image"); //$ CD13/BC channel
+selectWindow("C1-dupli_image"); //$ CD13/BC channel
 run("Green");
 run("Smooth", "stack");
 run("Smooth", "stack");
@@ -50,13 +50,13 @@ run("Fill Holes", "stack");
 
 //Saving the thresholded BC as avi file. Not saving it a tif because, the saved tif is not able to be used for further steps directly & also its file size is higher than avi.
 
-run("AVI... ", "frame=10 save=["+output1+"C2-dupli_image.avi]"); //$ CD13/BC channel
+run("AVI... ", "frame=10 save=["+output1+"C1-dupli_image.avi]"); //$ CD13/BC channel
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Segmentation of PVM using segmentation editor; Saving the obtained results file (volume of the PVM, Surface area of bile canaliculi on PVM) as .csv in the output folder
 
-selectWindow("C1-dupli_image"); //$ UIS4/PVM channel
+selectWindow("C2-dupli_image"); //$ UIS4/PVM channel
 run("Red");
 run("Smooth", "stack");
 run("Smooth", "stack");
@@ -64,7 +64,7 @@ setTool("freehand");
 waitForUser("Segmentation Editor: Segment the PVM", "(1)Uncheck 3D option (2)Segment PVM manually from few random slices (3)Click 'I' (4)Check 3D (5)Click '+' (6)Finally click OK"); 
 run("Segmentation Editor");
 wait(1000);
-selectWindow("C1-dupli_image.labels"); //$ UIS4/PVM channel
+selectWindow("C2-dupli_image.labels"); //$ UIS4/PVM channel
 rename("PVM.labels");
 
 //Saving the segmented PVM as a mask
@@ -75,7 +75,7 @@ run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects s
 selectWindow("Statistics for PVM.labels");
 saveAs("Results", output1+"statistics_PVM.csv"); 
 selectWindow("PVM.labels");
-imageCalculator("Subtract create stack", "PVM.labels","C2-dupli_image"); //$ CD13/BC channel
+imageCalculator("Subtract create stack", "PVM.labels","C1-dupli_image"); //$ CD13/BC channel
 selectWindow("Result of PVM.labels");
 rename("Result of PVM.labels1");
 close("Result of PVM.labels");
@@ -100,7 +100,7 @@ selectWindow("Statistics for PVM_BC_surface");
 saveAs("Results",output1+"statistics_PVM_surfacearea_BC.csv");
 
 //Closing all the windows that are opened during the processing of 3D object counter. If these windows are opened it consumes lot of memory & further processing becomes difficult.
-close("C1-dupli_image"); //$ UIS4/PVM channel
+close("C2-dupli_image"); //$ UIS4/PVM channel
 close("PVM.labels");
 close("Objects map of PVM.labels");
 close("Surface map of PVM.labels");
@@ -136,7 +136,7 @@ run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects s
 selectWindow("Statistics for Infected_cell.labels");
 saveAs("Results", output1+"statistics_inf_cell.csv"); 
 selectWindow("Infected_cell.labels");
-imageCalculator("Subtract create stack", "Infected_cell.labels","C2-dupli_image"); //$ CD13/BC channel
+imageCalculator("Subtract create stack", "Infected_cell.labels","C1-dupli_image"); //$ CD13/BC channel
 selectWindow("Result of Infected_cell.labels");
 rename("Result of Infected_cell.labels1");
 close("Result of Infected_cell.labels");
@@ -192,7 +192,7 @@ for(i=0;i<5;i++)
 	selectWindow("Statistics for "+name);
 	saveAs("Results", output1+n+"statistics_uninf_cell.csv"); 
 	selectWindow(n+"Uninfected_cell.labels");
-	imageCalculator("Subtract create stack", ""+n+"Uninfected_cell.labels","C2-dupli_image"); //$ CD13/BC channel
+	imageCalculator("Subtract create stack", ""+n+"Uninfected_cell.labels","C1-dupli_image"); //$ CD13/BC channel
 	selectWindow("Result of "+name);
 	rename("Result of "+name+"1");
 	close("Result of "+name);
