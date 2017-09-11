@@ -5,33 +5,45 @@ library(magrittr)
 ```
 
 ```{r}
-base_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17"
+base_path <- "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17"
+#setwd("/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17")
 dirnames <- list.dirs(base_path, recursive = FALSE)
-
-filenames <-list()
-for (i in 1:length(dirnames))
-{
-  #main_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17"
-  filenames <- list.dirs(dirnames[i])
-  print(i)
-  #print(filenames)
-  print(length(filenames))
-
-}
-
-filenames <- filenames[-1]
-#i=2
+#dat_inf <- list()
 for (i in 1:length(dirnames)){
-  path <- list.dirs(dirnames[i])
-  nam <- list.files(path)
-  print(path)
-  print(nam)
-  #path_files <- c(filenames[i])
+  file_timepoint <- list.dirs(dirnames[i], recursive = FALSE)
+  print(file_timepoint)
+  filenames <- list.files(dirnames[i], recursive = TRUE)
   
-  #nam <- list.files(path)
-  #nam_col <- nam[i]
-  #print(nam)
+  #print(filenames)
+  
+  for (j in 1:length(file_timepoint)){
+    filenames_inf <-
+    c("statistics_inf_cell.csv","statistics_inf_surfacearea_BC.csv")
+    dat_inf <- list()
+    path_temp<-file_timepoint[j]
+    print(file_timepoint[j])
+    for(i in 1:length(filenames_inf)){
+      
+      dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", path_temp, filenames_inf[[i]]))
+   }
+  }
 }
+
+#---------------------------------------------------------------------------------------------------
+for (i in 1:length(filenames)){
+  filenames_inf <-
+  c("statistics_inf_cell.csv",
+    "statistics_inf_surfacearea_BC.csv")
+  dat_inf <- list()
+  print(filenames[i])
+  path_temp <- filenames[i+1]
+  print(path_temp)
+  for(i in 1:length(filenames_inf)){
+  dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", path_temp, filenames_inf[[i]]))
+ }
+}
+
+
 
 #--------------Infected cell--------------------
 filenames_inf <-
