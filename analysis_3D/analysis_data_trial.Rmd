@@ -14,6 +14,8 @@ folder_list <-
   )
 loca_inf <- list(list())
 infected <- list(list())
+loca_pvm <- list(list())
+pvm <- list(list())
 
 for (m in 1:length(folder_list)){
   path <- sprintf("%s%s", base_path, folder_list[m])
@@ -25,6 +27,7 @@ for (m in 1:length(folder_list)){
   print(file_timepoint)
   
   for (j in 1:length(file_timepoint)){
+    #-------------------infected---------------------------------------------------------------
     filenames_inf <-
        c("statistics_inf_cell.csv",
           "statistics_inf_surfacearea_BC.csv")
@@ -45,22 +48,62 @@ for (m in 1:length(folder_list)){
         lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
         ) %>% as.data.frame()
     print(loca_inf[[j]])
+    #--------------------PVM------------------------------------------------------------------
+    
+    file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+
+    filenames_pvm <-
+      c("statistics_PVM_cell.csv",
+          "statistics_PVM_surfacearea_BC.csv")
+    dat_pvm <- list()
+    for(i in 1:length(filenames_pvm)){
+        dat_pvm[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_pvm[[i]]))
+    }
+    names(dat_pvm) <- filenames_pvm
+
+    dat_cell_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
+    dat_saBC_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+    
+    if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
+        dat_saBC_pvm[[1]][1,] <- 0 
+        dat_saBC_pvm[[1]] <- plyr::colwise(as.numeric)(dat_saBC_pvm[[1]])
+    }
+    loca_pvm[[j]] <- 
+          cbind(
+                lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
+                lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(), 
+                lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()/2) %>% as.matrix()
+              ) %>% as.data.frame()
+    print(loca_pvm[[j]])
     
   }
   tot_dat_inf <- list(list())
+  tot_dat_pvm <- list(list())
   for (k in 1:length(file_timepoint)){
     tot_dat_inf[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
     tot_dat_inf[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
     tot_dat_inf[[k]]$Status <- "INF"
     tot_dat_inf[[k]]$File <- file_name_temp[k]
     colnames(tot_dat_inf[[k]]) <- c("cell_Vol", "saBC_SA", "saBC_SV" , "Status","File Name")
+    
+    tot_dat_pvm[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
+    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
+    tot_dat_pvm[[k]]$Status <- "PVM"
+    tot_dat_pvm[[k]]$File <- file_name_temp[k]
+    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "saBC_SA", "saBC_SV" , "Status","File Name")
+    
+    
   }
   infected[[m]] <- tot_dat_inf %>% bind_rows()
-  View(infected)
+  pvm[[m]] <- tot_dat_pvm %>% bind_rows()
+  
 }
 
 total_inf <- infected %>% bind_rows()
-View(total_inf)
+total_pvm <- pvm %>% bind_rows()
+
+total_all <- rbind(total_inf,total_pvm)
+View(total_all)
 
 ```
 
