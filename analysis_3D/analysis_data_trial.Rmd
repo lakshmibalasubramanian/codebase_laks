@@ -1,0 +1,66 @@
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+```{r}
+base_path <- "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/"
+
+folder_list <-
+  c(
+    "48hpi_output",
+    "24hpi_output"
+  )
+loca_inf <- list(list())
+infected <- list(list())
+
+for (m in 1:length(folder_list)){
+  path <- sprintf("%s%s", base_path, folder_list[m])
+  file_timepoint <- list.dirs(path)
+  file_name_temp <- list.dirs(path,full.names = FALSE)
+  file_name_temp <- file_name_temp[-1]
+  file_timepoint <- file_timepoint[-1]
+  #print(path)
+  print(file_timepoint)
+  
+  for (j in 1:length(file_timepoint)){
+    filenames_inf <-
+       c("statistics_inf_cell.csv",
+          "statistics_inf_surfacearea_BC.csv")
+    dat_inf <- list()
+    for(i in 1:length(filenames_inf)){
+      dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_inf[[i]]))
+    }
+    print(dat_inf[[i]])
+    names(dat_inf) <- filenames_inf
+    dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+    dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
+    
+    loca_inf[[j]] <- 
+      cbind(
+        lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
+        ) %>% as.data.frame()
+    print(loca_inf[[j]])
+    
+  }
+  tot_dat_inf <- list(list())
+  for (k in 1:length(file_timepoint)){
+    tot_dat_inf[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
+    tot_dat_inf[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
+    tot_dat_inf[[k]]$Status <- "INF"
+    tot_dat_inf[[k]]$File <- file_name_temp[k]
+    colnames(tot_dat_inf[[k]]) <- c("cell_Vol", "saBC_SA", "saBC_SV" , "Status","File Name")
+  }
+  infected[[m]] <- tot_dat_inf %>% bind_rows()
+  View(infected)
+}
+
+total_inf <- infected %>% bind_rows()
+View(total_inf)
+
+```
+

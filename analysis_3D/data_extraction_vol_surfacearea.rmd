@@ -13,37 +13,89 @@ for (i in 1:length(dirnames)){
   file_timepoint <- list.dirs(dirnames[i], recursive = FALSE)
   print(file_timepoint)
   filenames <- list.files(dirnames[i], recursive = TRUE)
-  
+  file_name_temp <- list.files(dirnames[i])
+  nam_col <- file_name_temp[i]
+  #file_timepoint <- file_timepoint[-1]
+  print(length(file_timepoint))
   #print(filenames)
-  
+  loca_inf <- list(list())
   for (j in 1:length(file_timepoint)){
+    #--------------Infected cell--------------------
     filenames_inf <-
-    c("statistics_inf_cell.csv","statistics_inf_surfacearea_BC.csv")
+       c("statistics_inf_cell.csv",
+          "statistics_inf_surfacearea_BC.csv")
     dat_inf <- list()
-    path_temp<-file_timepoint[j]
-    print(file_timepoint[j])
+
     for(i in 1:length(filenames_inf)){
-      
-      dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", path_temp, filenames_inf[[i]]))
-   }
+      dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_inf[[i]]))
+    }
+    
+    names(dat_inf) <- filenames_inf
+    dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+    dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
+    
+    loca_inf[[j]] <- 
+      cbind(
+        lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[3]] %>% sum()/2) %>% as.matrix(), 
+        lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
+        ) %>% as.data.frame()
+    
+    loca_inf[[j]] <- plyr::colwise(as.numeric)(loca_inf[[j]])
+    loca_inf$Status <- "INF"
+    loca_inf$File <- nam_col
+    #colnames(loca_inf[[j]]) <- c("cell_Vol", "saBC_SA", "saBC_SV" , "Status","File Name")
+    total_temp <- loca_inf[[j]]
+    #total <- rbind(total_temp,loca_inf)
+    
+    
+    #---------------PVM----------------------------
+
+    file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+
+    filenames_pvm <-
+      c("statistics_PVM_cell.csv",
+          "statistics_PVM_surfacearea_BC.csv")
+    
+    dat_pvm <- list()
+    
+    for(i in 1:length(filenames_pvm)){
+        dat_pvm[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_pvm[[i]]))
+    }
+    names(dat_pvm) <- filenames_pvm
+
+    dat_cell_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
+    dat_saBC_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+
+    if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
+        dat_saBC_pvm[[1]][1,] <- 0 
+        dat_saBC_pvm[[1]] <- plyr::colwise(as.numeric)(dat_saBC_pvm[[1]])
+      }
+
+    loca_pvm <- 
+          cbind(
+                lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
+                lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(), 
+                lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()/2) %>% as.matrix()
+              ) %>% as.data.frame()
+
+
+    loca_pvm <- plyr::colwise(as.numeric)(loca_pvm)
+    loca_pvm$Status <- "PVM"
+    loca_pvm$File <- nam_col
+    colnames(loca_pvm) <- c("cell_Vol", "saBC_SA", "saBC_SV", "Status","File Name")
+    
   }
+  loca_inf_final <- loca_inf[[j]] %>% bind_rows()
+  View(loca_inf_final)
+  total <- rbind(loca_pvm,loca_inf[[j]])
+
+  write.csv(total, file = file.path(base_path,"results.csv"))
+  colnames(total) <- c( "cell_Vol", "saBC_SA", "saBC_SV", "Status","File Name")
+  #write.table(total, file = file.path(main_path, "master_results.csv"), append=TRUE, sep = ",", col.names = FALSE)
 }
-
-#---------------------------------------------------------------------------------------------------
-for (i in 1:length(filenames)){
-  filenames_inf <-
-  c("statistics_inf_cell.csv",
-    "statistics_inf_surfacearea_BC.csv")
-  dat_inf <- list()
-  print(filenames[i])
-  path_temp <- filenames[i+1]
-  print(path_temp)
-  for(i in 1:length(filenames_inf)){
-  dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", path_temp, filenames_inf[[i]]))
- }
-}
-
-
+```
 
 #--------------Infected cell--------------------
 filenames_inf <-
