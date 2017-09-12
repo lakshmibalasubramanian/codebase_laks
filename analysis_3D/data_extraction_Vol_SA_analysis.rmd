@@ -1,5 +1,5 @@
 ```{r}
-# This script is to extract the data from the volume and SA program that is being done with all the images using the macro "Modified_SA_vol_PVM_cellSep17.ijm". This script extracts information from two timepoints (48 & 24 hpi). This script has been modified slightly to take from 33hpi output bcz we have calculated only the volume related calculation in 33hpi infection. The output generated are  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# This script is to extract the data from the volume and SA program that is being done with all the images using the macro "Modified_SA_vol_PVM_cellSep17.ijm". This script extracts information from two timepoints (48 & 24 hpi). This script has been modified slightly to take from 33hpi output bcz we have calculated only the volume related calculation in 33hpi infection. The output generated are  four csv files such as "infected_data.csv", "pvm_data.csv", "uninfected_data.csv" & "master_data.csv"
 ```
 
 ``` {r}
