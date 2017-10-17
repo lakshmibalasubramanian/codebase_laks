@@ -10,7 +10,7 @@ library(magrittr)
 
 ```{r}
 #Declaring the basic path 
-base_path <- "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/"
+base_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/"
 
 #Generating the folder list
 folder_list <-
@@ -53,7 +53,8 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_SurVox_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_SurPixel_inf <- dat_inf[grep("cell", names(dat_inf))]
-    dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+    dat_cell_int_intensity_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_saBC_int_intensity_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
     dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
     
     loca_inf[[j]] <- 
@@ -61,15 +62,17 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
         lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
         lapply(dat_cell_SurVox_inf, function(x) x[[5]]) %>% as.matrix(),
         lapply(dat_cell_SurPixel_inf, function(x) x[[3]]) %>% as.matrix(),
+        lapply(dat_cell_int_intensity_inf, function(x) x[[6]]) %>% as.matrix(),
         lapply(dat_saBC_inf, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(),
-        lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
+        lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()/2) %>% as.matrix(),
+        lapply(dat_saBC_int_intensity_inf, function(x) x[[6]] %>% sum()) %>% as.matrix()
         ) %>% as.data.frame()
     
     print(loca_inf[[j]])
     
     #--------------------PVM------------------------------------------------------------------
     # This line is to rename the statistics file for pvm since its named differently. The temperory renaming is done to maintain the same pattern in the entire code
-    file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+    #file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
 
     filenames_pvm <-
       c("statistics_PVM_cell.csv",
@@ -83,7 +86,9 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_cell_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
     dat_cell_SurVox_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
     dat_cell_SurPixel_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
+    dat_cell_int_intensity_pvm <- dat_pvm[grep("cell", names(dat_pvm))]
     dat_saBC_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+    dat_saBC_int_intensity_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
     
     if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
         dat_saBC_pvm[[1]][1,] <- 0 
@@ -94,6 +99,8 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
                 lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
                 lapply(dat_cell_SurVox_pvm, function(x) x[[5]]) %>% as.matrix(),
                 lapply(dat_cell_SurPixel_pvm, function(x) x[[3]]) %>% as.matrix(),
+                lapply(dat_cell_int_intensity_pvm, function(x) x[[6]]) %>% as.matrix(),
+                lapply(dat_saBC_int_intensity_pvm, function(x) x[[6]] %>% as.numeric %>% sum()) %>% as.matrix(),
                 lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(), 
                 lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()/2) %>% as.matrix()
               ) %>% as.data.frame()
@@ -115,7 +122,9 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_uninf_cell <- dat_uninf[grep("cell", names(dat_uninf))]
     dat_cell_SurVox_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
     dat_cell_SurPixel_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
+    dat_cell_int_intensity_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
     dat_uninf_saBC <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
+    dat_saBC_int_intensity_uninf <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
     dat_uninf_saBC[is.na(dat_uninf_saBC)] <- 0
     
     loca_uninf[[j]] <- 
@@ -123,6 +132,8 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
             lapply(dat_uninf_cell, function(x) x[[2]]) %>% as.matrix(), 
             lapply(dat_cell_SurVox_uninf, function(x) x[[5]]) %>% as.matrix(),
             lapply(dat_cell_SurPixel_uninf, function(x) x[[3]]) %>% as.matrix(),
+            lapply(dat_cell_int_intensity_uninf, function(x) x[[6]]) %>% as.matrix(),
+            lapply(dat_saBC_int_intensity_uninf, function(x) x[[6]] %>% sum()) %>% as.matrix(),
             lapply(dat_uninf_saBC, function(x) x[[3]] %>% sum()/2) %>% as.matrix(), 
             lapply(dat_uninf_saBC, function(x) x[[5]] %>% sum()/2) %>% as.matrix()
             ) %>% 
@@ -143,7 +154,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     tot_dat_inf[[k]]$File <- file_name_temp[k]
     #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
     tot_dat_inf[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5) 
-    colnames(tot_dat_inf[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "saBC_SA", "saBC_SV" , "Status","File Name","Timepoint")
+    colnames(tot_dat_inf[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "int_intensity","int_intensity_SA","saBC_SA", "saBC_SV", "Status","File Name","Timepoint")
     
     tot_dat_pvm[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
     tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
@@ -151,7 +162,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     tot_dat_pvm[[k]]$File <- file_name_temp[k]
     #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
     tot_dat_pvm[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5)
-    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "saBC_SA", "saBC_SV" , "Status","File Name","Timepoint")
+    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "int_intensity","int_intensity_SA","saBC_SA", "saBC_SV", "Status","File Name","Timepoint")
     
     tot_dat_uninf[[k]] <- rbind(loca_uninf[[k]]) %>% as.data.frame()
     tot_dat_uninf[[k]] <- plyr::colwise(as.numeric)(loca_uninf[[k]])
@@ -159,7 +170,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     tot_dat_uninf[[k]]$File <- file_name_temp[k]
     #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
     tot_dat_uninf[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5) 
-    colnames(tot_dat_uninf[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "saBC_SA", "saBC_SV" , "Status","File Name","Timepoint")
+    colnames(tot_dat_uninf[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "int_intensity","int_intensity_SA","saBC_SA", "saBC_SV", "Status","File Name","Timepoint")
    }
   
   infected[[m]] <- tot_dat_inf %>% bind_rows()
@@ -174,11 +185,11 @@ total_uninf <- uninfected %>% bind_rows()
 
 #Combining all the dataframes
 total_all <- rbind(total_inf,total_pvm,total_uninf)
-write.csv(total_inf, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/infected_data.csv")
-write.csv(total_pvm, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/pvm_data.csv")
-write.csv(total_uninf, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/uninfected_data.csv")
+write.csv(total_inf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/infected_data.csv")
+write.csv(total_pvm, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/pvm_data.csv")
+write.csv(total_uninf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/uninfected_data.csv")
 
-write.csv(total_all, file = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/master_data.csv")
+write.csv(total_all, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 View(total_all)
 
 ```
