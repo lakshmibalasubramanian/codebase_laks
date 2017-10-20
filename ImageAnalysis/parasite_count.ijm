@@ -48,6 +48,13 @@ saveAs("Tiff", output1+ "DAPI.tif");
 //converting the PVM mask to binary image (from .avi which is RGB)
 selectWindow(image_PVM_mask);
 run("8-bit");
+<<<<<<< Updated upstream
+=======
+run("Convert to Mask", "method=Default background=Default calculate");
+selectWindow("PVM.labels.avi");
+saveAs("Tiff", output1+ "PVM_mask.tif");
+selectWindow("PVM_mask.tif");
+>>>>>>> Stashed changes
 run("Threshold...");
 wait(500);
 setAutoThreshold("Default dark");
