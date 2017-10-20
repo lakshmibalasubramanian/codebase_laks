@@ -20,6 +20,7 @@ folder_list <-
     "33hpi_output"
   )
 
+
 #Creating empty dataframes
 loca_inf <- list(list())
 infected <- list(list())
