@@ -28,6 +28,7 @@ pvm <- list(list())
 loca_uninf <- list(list())
 uninfected <- list(list())
 
+
 for (m in 1:length(folder_list)){   # This is the main loop which has two timepoints folder
   path <- sprintf("%s%s", base_path, folder_list[m])
   file_timepoint <- list.dirs(path)
