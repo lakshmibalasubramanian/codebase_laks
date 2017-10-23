@@ -30,7 +30,6 @@ trail_dat <- dat_infec %>% group_by(Timepoint) %>% summarise_all(mean)
 ggplot2::ggplot(trail_dat) +
   ggplot2::geom_line(ggplot2::aes(trail_dat$Timepoint,trail_dat$Cell_Vol),linetype =2)
   
-
 ```
 
 
