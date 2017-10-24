@@ -4,6 +4,8 @@ library(ggplot2)
 library(dplyr)
 library(magrittr)
 library(svglite)
+library(grid)
+library(gridExtra)
 ```
 
 ```{r}
@@ -11,24 +13,71 @@ library(svglite)
 dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 dat_infec <- dat %>% dplyr::filter(dat$Status == "INF")
+dat_PVM <- dat %>% dplyr::filter(dat$Status == "PVM")
 ```
 
 ```{r}
-#Plot for volume of the infected and uninfected cells between 24 and 48hpi
-ggplot2::ggplot(dat_infec) +
-  ggplot2::geom_boxplot(ggplot2::aes(dat_infec$Timepoint, dat_infec$Cell_Vol, fill = dat_infec$Status), alpha = 0.4, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(dat_infec$Timepoint, y = dat_infec$Cell_Vol, fill = dat_infec$Status, color = dat_infec$Status), cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+#Plot for volume of the infected hepatocytes (24,33,48 hpi)
+
+P1 <- ggplot2::ggplot(dat_infec) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_infec$Timepoint, dat_infec$Cell_Vol, fill = dat_infec$Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_infec$Timepoint, y = dat_infec$Cell_Vol, fill = dat_infec$Status, color = dat_infec$Status), colour = "Red", cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=20, face = "bold")) + ylab("Volume of infected hepatocytes (micron^3)") +
-  ggplot2::ggsave("volume_cells_old.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_cells_old.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=20, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + ylab("Volume of infected hepatocytes (micron^3)") + xlab("Timepoint of infection")
+  ggplot2::ggsave("volume_inf_hepatocyte.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_inf_hepatocyte.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
+
+
+```{r}
+#Plot for volume of the PVM (24,33,48 hpi)
+
+P2 <- ggplot2::ggplot(dat_PVM) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_PVM$Timepoint, dat_PVM$Cell_Vol, fill = dat_PVM$Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_PVM$Timepoint, y = dat_PVM$Cell_Vol, fill = dat_PVM$Status, color = dat_PVM$Status), colour = "Red", cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=20, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection")
+  ggplot2::ggsave("volume_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for SA (pixels) of the PVM (24,33,48 hpi)
+
+P3 <- ggplot2::ggplot(dat_PVM) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_PVM$Timepoint, dat_PVM$cell_Surf_Pix, fill = dat_PVM$Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_PVM$Timepoint, y = dat_PVM$cell_Surf_Pix, fill = dat_PVM$Status, color = dat_PVM$Status), colour = "Red", cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=20, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + ylab("Surface of PVM (pixel^2)") + xlab("Timepoint of infection")
+  ggplot2::ggsave("SA_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+#Plot for SA (voxels) of the PVM (24,33,48 hpi)
+
+P4<- ggplot2::ggplot(dat_PVM) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_PVM$Timepoint, dat_PVM$Cell_Surf_Vox, fill = dat_PVM$Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_PVM$Timepoint, y = dat_PVM$Cell_Surf_Vox, fill = dat_PVM$Status, color = dat_PVM$Status), colour = "Red", cex = 0.7, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=20, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + ylab("Surface voxels of PVM") + xlab("Timepoint of infection")
+  ggplot2::ggsave("SA_Vox_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+multiplot(P1,P2,P3,P4,cols =2)
+grid.arrange(P1,P2,P3,P4,widths=c(0.5, 0.5),ncol=2)
+
+```
+
+
 
 ```{r}
 #Plot for volume of the infected and uninfected cells between 24 and 48hpi
 trail_dat <- dat_infec %>% group_by(Timepoint) %>% summarise_all(mean)
 ggplot2::ggplot(trail_dat) +
-  ggplot2::geom_line(ggplot2::aes(trail_dat$Timepoint,trail_dat$Cell_Vol),linetype =2)
+  ggplot2::geom_line(ggplot2::aes(trail_dat$Timepoint,trail_dat$Cell_Vol),linetype =2, position = )
   
 ```
 
