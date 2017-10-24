@@ -156,8 +156,8 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     tot_dat_inf[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5) 
     colnames(tot_dat_inf[[k]]) <- c("cell_Vol", "Surf_Voxels","Surf_Pixel", "int_intensity","int_intensity_SA","saBC_SA", "saBC_SV", "Status","File Name","Timepoint")
     
-    tot_dat_pvm[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
-    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
+    tot_dat_pvm[[k]] <- rbind(loca_pvm[[k]]) %>% as.data.frame()
+    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_pvm[[k]])
     tot_dat_pvm[[k]]$Status <- "PVM" # These are the additional columns that we are adding in the dataframes
     tot_dat_pvm[[k]]$File <- file_name_temp[k]
     #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
