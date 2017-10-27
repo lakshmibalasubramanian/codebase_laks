@@ -89,14 +89,16 @@ pvm_dat$Status <- "PVM"
 
 all_dat <- rbind(cell_dat,pvm_dat)
 
-C <- scale_color_manual(all_dat$Status,values = c("dark green", "Red"))
+C <- scale_color_manual(all_dat$Status, values = c("dark green", "Red"))
+
+
 
 ggplot2::ggplot(all_dat) +
   
   ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Vol, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
   ggplot2::geom_point(ggplot2::aes(Timepoint, Cell_Vol, group = Status, color = Status)) + C +
   ggplot2::geom_point(ggplot2::aes(Timepoint, Cell_Surf_Vox, group = Status, color = Status)) +
-  ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Surf_Vox, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) +
+  ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Surf_Vox, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=12, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume") + xlab("Timepoint of infection")
   
