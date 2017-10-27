@@ -93,6 +93,7 @@ C <- scale_color_manual(all_dat$Status, values = c("dark green", "Red"))
 
 
 
+
 ggplot2::ggplot(all_dat) +
   
   ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Vol, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
