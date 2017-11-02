@@ -17,8 +17,12 @@ dat_infec <- dat %>% dplyr::filter(dat$Status == "INF")
 dat_PVM <- dat %>% dplyr::filter(dat$Status == "PVM")
 dat_inf_uninf <- rbind(dat_infec, dat_uninf)
 dat_inf_PVM <- cbind(dat_infec,dat_PVM)
+
+# Adding a new column to a dataframe 
 dat_inf_PVM["Ratio_Vol_CELL_PVM"] <- 0
+# Computing values for new column and adding to it
 dat_inf_PVM$Ratio_Vol_CELL_PVM <- dat_inf_PVM$Cell_Vol.1/dat_inf_PVM$Cell_Vol
+
 ```
 
 ```{r}
@@ -112,7 +116,7 @@ ggplot2::ggplot(all_dat) +
 ```{r}
 #Plot for ratio between the pvm and cell volume
 ggplot2::ggplot(dat_inf_PVM) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM), outlier.color = "red",  alpha = 0.9, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM), outlier.color = NA,  alpha = 0.9, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "black", cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Ratio of PVM and hepatocyte volume") + xlab("Timepoint of infection")
