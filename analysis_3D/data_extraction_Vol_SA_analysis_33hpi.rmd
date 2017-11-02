@@ -226,6 +226,13 @@ total_uninf <- uninfected %>% bind_rows()
 
 #Combining all the dataframes
 total_all <- rbind(total_inf,total_pvm,total_uninf)
+
+#Replacing all the BC data to NA in 33hpi
+total_all$BC_SA_Pix[total_all$Timepoint == "33hpi"] <- NA
+total_all$BC_SA_Vox[total_all$Timepoint == "33hpi"] <- NA
+total_all$BC_int_intensity[total_all$Timepoint == "33hpi"] <- NA
+
+#Writing the dataframes as .csv in a file
 write.csv(total_inf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/infected_data.csv")
 write.csv(total_pvm, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/pvm_data.csv")
 write.csv(total_uninf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/uninfected_data.csv")
