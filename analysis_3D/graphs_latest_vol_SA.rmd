@@ -166,6 +166,7 @@ ggplot2::ggplot(dat_24_48_PVM) +
 dat_24_48_inf <- dat_24_48 %>% dplyr::filter(dat_24_48$Status == "INF")
 dat_24_48_uninf <- dat_24_48 %>% dplyr::filter(dat_24_48$Status == "UNINF")
 
+
 dat_24_inf <- dat_24_48_inf %>% dplyr::filter(dat_24_48_inf$Timepoint == "24hpi")
 dat_48_inf <- dat_24_48_inf %>% dplyr::filter(dat_24_48_inf$Timepoint == "48hpi")
 
