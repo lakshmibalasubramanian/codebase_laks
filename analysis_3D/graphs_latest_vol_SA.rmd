@@ -10,7 +10,7 @@ library(gridExtra)
 
 ```{r}
 #Reading the data file
-dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
+#dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
@@ -35,12 +35,12 @@ dat_24_48$BC_SA_Vox <- dat_24_48$BC_SA_Vox/2
 #Plot for volume of the infected hepatocytes (24,33,48 hpi)
 
 P1 <- ggplot2::ggplot(dat_inf_uninf) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status), alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, fill = Status, color = Status), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume of infected hepatocytes (micron^3)") + xlab("Timepoint of infection")
-  ggplot2::ggsave("volume_inf_hepatocyte.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_inf_hepatocyte.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("volume_inf_hepatocyte.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_inf_hepatocyte.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 
@@ -48,12 +48,12 @@ P1 <- ggplot2::ggplot(dat_inf_uninf) +
 #Plot for volume of the PVM (24,33,48 hpi)
 
 P2 <- ggplot2::ggplot(dat_PVM) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status), outlier.color = NA, fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, fill = Status, color = Status), colour = "Red", cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection")
-  ggplot2::ggsave("volume_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("volume_PVM.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_PVM.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
@@ -72,12 +72,12 @@ P3 <- ggplot2::ggplot(dat_PVM) +
 #Plot for SA (voxels) of the PVM (24,33,48 hpi)
 
 P4<- ggplot2::ggplot(dat_PVM) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Surf_Vox, fill = Status), fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Surf_Vox, fill = Status), outlier.color = NA, fill = "red", alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Surf_Vox, fill = Status, color = Status), colour = "Red", cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of PVM") + xlab("Timepoint of infection")
-  ggplot2::ggsave("SA_Vox_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("SA_Vox_PVM.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_PVM.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
@@ -125,9 +125,9 @@ ggplot2::ggplot(dat_inf_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM), outlier.color = NA,  alpha = 0.9, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "black", cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Ratio of PVM and hepatocyte volume") + xlab("Timepoint of infection")
-  ggplot2::ggsave("volume_ratio_cell_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_ratio_cell_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Fraction of PVM and hepatocyte volume") + xlab("Timepoint of infection")
+  ggplot2::ggsave("volume_ratio_cell_PVM.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_ratio_cell_PVM.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 
 
 ```
@@ -142,8 +142,8 @@ ggplot2::ggplot(dat_24_48) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, fill = Status, color = Status), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Timepoint of infection")
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 
@@ -156,8 +156,8 @@ ggplot2::ggplot(dat_24_48_PVM) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_int_intensity, fill = Status, color = Status), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Integrated intensity of BC on PVM") + xlab("Timepoint of infection")
-  ggplot2::ggsave("Int_inten_BC_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("Int_inten_BC_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("Int_inten_BC_PVM.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("Int_inten_BC_PVM.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
@@ -173,10 +173,20 @@ dat_48_inf <- dat_24_48_inf %>% dplyr::filter(dat_24_48_inf$Timepoint == "48hpi"
 dat_24_uninf <- dat_24_48_uninf %>% dplyr::filter(dat_24_48_uninf$Timepoint == "24hpi")
 dat_48_uninf <- dat_24_48_uninf %>% dplyr::filter(dat_24_48_uninf$Timepoint == "48hpi")
 
+dat_33 <- dat %>% dplyr::filter(dat$Timepoint == "33hpi")
+dat_33_inf <- dat_33 %>% dplyr::filter(dat_33$Status == "INF")
+dat_33_uninf <- dat_33 %>% dplyr::filter(dat_33$Status == "UNINF")
+
 
 tes_BC_inf_uninf_24 <- t.test(dat_24_inf %>% dplyr::select(dat_24_inf$BC_SA_Vox) %>% as.matrix(), dat_24_uninf %>% dplyr::select(dat_24_uninf$BC_SA_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
-tes_untreat_bran <- t.test(dat_3pix_untreated_inf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), dat_3pix_untreated_uninf %>% dplyr::select(Averagebranchlength) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+tes_vol_24 <- t.test(dat_24_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat_24_uninf %>% dplyr::select(Cell_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_vol_48 <- t.test(dat_48_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat_48_uninf %>% dplyr::select(Cell_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_vol_33 <- t.test(dat_33_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat_33_uninf %>% dplyr::select(Cell_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
 
 ```
 
