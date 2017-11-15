@@ -95,27 +95,32 @@ ggsave("all_graphs.png", path ="/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new
 ```{r}
 #Plot for volume of the infected and uninfected cells between 24 and 48hpi
 
-cell_dat <- dat_infec %>% group_by(Timepoint) %>% summarise_all(median)
+cell_dat <- dat_infec %>% group_by(Timepoint) %>% summarise_all(mean)
 cell_dat$Status <- "CELL"
-pvm_dat <- dat_PVM %>% group_by(Timepoint) %>% summarise_all(median)
+pvm_dat <- dat_PVM %>% group_by(Timepoint) %>% summarise_all(mean)
 pvm_dat$Status <- "PVM"
+
+pvm_dat["Normalise_volume"] <- 0
+pvm_dat$Normalise_volume <- pvm_dat$Cell_Vol/408.1024
+pvm_dat["Normalise_SV"] <- 0
+pvm_dat$Normalise_SV <- pvm_dat$Cell_Surf_Vox/5024.60
 
 all_dat <- rbind(cell_dat,pvm_dat)
 
-C <- scale_color_manual(all_dat$Status, values = c("dark green", "Red"))
+C <- scale_color_manual(all_dat$Status, values = c("Red"))
 
 
 
 
-ggplot2::ggplot(all_dat) +
+ggplot2::ggplot(pvm_dat) +
   
-  ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Vol, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
-  ggplot2::geom_point(ggplot2::aes(Timepoint, Cell_Vol, group = Status, color = Status)) + C +
-  ggplot2::geom_point(ggplot2::aes(Timepoint, Cell_Surf_Vox, group = Status, color = Status)) +
-  ggplot2::geom_line(ggplot2::aes(Timepoint, Cell_Surf_Vox, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) + 
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status)) + C +
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status)) +
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=12, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("combined_plot.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume and SV normalised to 24hpi") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("combined_plot.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
   
 ```
 
@@ -182,6 +187,7 @@ dat_48_uninf <- dat_24_48_uninf %>% dplyr::filter(dat_24_48_uninf$Timepoint == "
 
 dat_24_PVM <- dat_24_48_PVM %>% dplyr::filter(dat_24_48_PVM$Timepoint == "24hpi")
 dat_48_PVM <- dat_24_48_PVM %>% dplyr::filter(dat_24_48_PVM$Timepoint == "48hpi")
+dat_33_PVM <- dat_PVM %>% dplyr::filter(dat_PVM$Timepoint == "33hpi")
 
 dat_33 <- dat %>% dplyr::filter(dat$Timepoint == "33hpi")
 dat_33_inf <- dat_33 %>% dplyr::filter(dat_33$Status == "INF")
@@ -202,6 +208,9 @@ tes_vol_48 <- t.test(dat_48_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat
 
 tes_vol_33 <- t.test(dat_33_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat_33_uninf %>% dplyr::select(Cell_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
+tes_PVM_33_48 <- t.test(dat_33_PVM %>% dplyr::select(Cell_Surf_Vox) %>% as.matrix(), dat_48_PVM %>% dplyr::select(Cell_Surf_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_PVM_24_33 <- t.test(dat_24_PVM %>% dplyr::select(Cell_Surf_Vox) %>% as.matrix(), dat_33_PVM %>% dplyr::select(Cell_Surf_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
 ```
 
