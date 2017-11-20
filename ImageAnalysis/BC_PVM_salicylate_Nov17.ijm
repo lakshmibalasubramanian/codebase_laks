@@ -1,7 +1,6 @@
-//Program description: This macro does the bile canaliculi (BC) thersholding and segments the PVM, infected cell & five uninfected cells. The surface area of BC on PVM, infected cell & uninfected cells are being calculated.
-//Other parameters like volume, area of segmented objects are also being calculated. 
-//Segmentation of PVM, infected & uninfected cells (5) are being carried manually. So the macro is interactive for the segmentation.
-//INPUT: Z-stack images with four channels (One image at a time); OUTPUT: 14 .csv files & 15 .avi files are generated for one image
+//Program description: This macro is to segment the PVM and estimate the surface of bile canaliculi on PVM (This is to estimate from salicylate experiment images 24hpi).
+//It estimates SA of BC on PVM. 
+//INPUT: Z-stack images with four channels (One image at a time), Thresholded bile canaliculi image; OUTPUT: 2 .csv files & 2 .tif files are generated for one image
 //TIPS: Before choosing the input image user should check the channel numbers for the four channels. The channel number could be changed according to the choosen image in the lines with "$" symbol where the channel number is specified.
 
 //*********************************************************************************************************************************************************************************************************************************************************************************************************************
@@ -9,10 +8,13 @@
 //Open the image containing folder and creates the output folder. This is based on the user selection
 filepath=File.openDialog("Select input image"); 
 image= File.getName(filepath);
+filepath1 = File.openDialog("Select thersholded BC image");
+image_BC = File.getName(filepath1);
 output = getDirectory("Choose output directory");
 //out_dir = image+"_result";
-file=File.makeDirectory(output+image+"_result");
-output1 = output+image+"_result/";
+file=File.makeDirectory(output+image+"_BC_PVM_result");
+output1 = output+image+"_BC_PVM_result/";
+
 
 //This print command just prints the output directory (where all the .avi & .csv files are saved
 //print (output1);
@@ -34,23 +36,9 @@ close();
 
 //Choose CD13 channel (BC). Preprocessing steps for the image. Thersholding BC
 
-selectWindow("C1-dupli_image"); //$ CD13/BC channel
-run("Green");
-run("Smooth", "stack");
-run("Smooth", "stack");
-run("Threshold...");
-wait(1000); 
-setAutoThreshold("Default dark");
-waitForUser("Threshold", "Please adjust threshold and then click OK"); 
-run("Convert to Mask", "stack");
-run("Dilate", "stack");
-run("Dilate", "stack");
+open(filepath1);
+selectWindow(image_BC);
 run("Erode", "stack");
-run("Fill Holes", "stack");
-
-//Saving the thresholded BC as avi file. Not saving it a tif because, the saved tif is not able to be used for further steps directly & also its file size is higher than avi.
-
-run("AVI... ", "frame=10 save=["+output1+"C1-dupli_image.avi]"); //$ CD13/BC channel
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,11 +52,13 @@ setTool("freehand");
 waitForUser("Segmentation Editor: Segment the PVM", "(1)Uncheck 3D option (2)Segment PVM manually from few random slices (3)Click 'I' (4)Check 3D (5)Click '+' (6)Finally click OK"); 
 run("Segmentation Editor");
 wait(1000);
-selectWindow("C2-dupli_image.labels"); //$ UIS4/PVM channel
+selectWindow("C2-dupli_image-1.labels"); //$ UIS4/PVM channel
 rename("PVM.labels");
+run("Duplicate...", "title=PVM_mask duplicate");
+selectWindow("PVM_mask");
 
 //Saving the segmented PVM as a mask
-run("AVI... ", "compression=JPEG frame=10 save=["+output1+"PVM.labels.avi]");
+saveAs("Tiff", output1+ "PVM_mask.tif");
 
 selectWindow("PVM.labels");
 run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
@@ -82,9 +72,10 @@ close("Result of PVM.labels");
 imageCalculator("Subtract create stack", "PVM.labels","Result of PVM.labels1");
 selectWindow("Result of PVM.labels");
 rename("PVM_BC_surface");
+run("Duplicate...", "title=PVM_BC_surface_mask duplicate");
+saveAs("Tiff", output1+ "PVM_BC_surface_mask.tif");
 
 //Saving the BC mask that is on the surface of the PVM
-run("AVI... ", "compression=JPEG frame=10 save=["+output1+"PVM_BC_surface.avi]");
 
 close("Result of PVM.labels");
 selectWindow("PVM_BC_surface");
