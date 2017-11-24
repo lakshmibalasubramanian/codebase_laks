@@ -8,7 +8,7 @@
 //Open the image containing folder and creates the output folder. This is based on the user selection
 filepath=File.openDialog("Select input image"); 
 image= File.getName(filepath);
-filepath1 = File.openDialog("Select thersholded BC image");
+filepath1 = File.openDialog("Select raw BC image");
 image_BC = File.getName(filepath1);
 output = getDirectory("Choose output directory");
 //out_dir = image+"_result";
@@ -16,8 +16,8 @@ file=File.makeDirectory(output+image+"_BC_PVM_result");
 output1 = output+image+"_BC_PVM_result/";
 
 
-//This print command just prints the output directory (where all the .avi & .csv files are saved
-//print (output1);
+//This print command just prints the output directory
+print (filepath1);
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -38,8 +38,17 @@ close();
 
 open(filepath1);
 selectWindow(image_BC);
+selectWindow("BC_raw.tif");
+run("Smooth", "stack");
+run("Threshold...");
+wait(1000); 
+setAutoThreshold("Default dark");
+waitForUser("Threshold", "Please adjust threshold and then click OK"); 
+run("Convert to Mask", "stack");
+run("Dilate", "stack");
 run("Erode", "stack");
-
+selectWindow("BC_raw.tif");
+saveAs("Tiff", output1+ "BC_thres.tif");
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Segmentation of PVM using segmentation editor; Saving the obtained results file (volume of the PVM, Surface area of bile canaliculi on PVM) as .csv in the output folder
@@ -65,13 +74,14 @@ run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects s
 selectWindow("Statistics for PVM.labels");
 saveAs("Results", output1+"statistics_PVM.csv"); 
 selectWindow("PVM.labels");
-imageCalculator("Subtract create stack", "PVM.labels","C1-dupli_image"); //$ CD13/BC channel
+imageCalculator("Subtract create stack", "PVM.labels","BC_thres.tif"); //$ CD13/BC channel
 selectWindow("Result of PVM.labels");
 rename("Result of PVM.labels1");
 close("Result of PVM.labels");
 imageCalculator("Subtract create stack", "PVM.labels","Result of PVM.labels1");
 selectWindow("Result of PVM.labels");
 rename("PVM_BC_surface");
+
 run("Duplicate...", "title=PVM_BC_surface_mask duplicate");
 saveAs("Tiff", output1+ "PVM_BC_surface_mask.tif");
 
