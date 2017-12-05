@@ -1,0 +1,82 @@
+``` {r}
+#This script is to extract the data of the BC on pvm from salicylate treated experiment in 24hpi. There were three dataset with 23, 24 & 25 hpi timepoints. The results were obtained by using the macro "BC_PVM_salicylate_Nov17.ijm".
+```
+
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+``` {r}
+#Declaring the path
+base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis"
+#base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
+
+#Listing the folders list
+folder_list <- list.dirs(base_path)
+folder_list <- folder_list[grepl(".tif", folder_list)]
+
+loca_pvm <- list(list())
+temp <- list(list())
+cond_tre_untre <- list(list())
+image_name <- list(list())
+for (m in 1:length(folder_list)){
+  
+  files_csv_list <-
+        c(
+          "statistics_PVM_surfacearea_BC.csv",
+           "statistics_PVM.csv"
+         )
+  
+      path_temp <- folder_list[m]
+      temp <- strsplit(path_temp,"/")
+      cond_tre_untre[m] <- temp[[1]][7]
+      image_name[m] <- temp[[1]][8]
+      
+      dat_pvm <- list()
+      for (i in 1:length(files_csv_list)){
+         dat_pvm[[i]] <- readr::read_csv(sprintf("%s/%s", folder_list[m], files_csv_list[[i]]))
+         print(dat_pvm[[i]])
+      }
+      
+      names(dat_pvm) <- files_csv_list
+      dat_pvm_vol <- dat_pvm[grep("PVM.csv", names(dat_pvm))]
+      dat_pvm_vox <- dat_pvm[grep("PVM.csv", names(dat_pvm))]
+      dat_saBC_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+      dat_saBC_int_intensity_pvm <- dat_pvm[grep("surfacearea_BC", names(dat_pvm))]
+      
+      if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
+        dat_saBC_pvm[[1]][1,] <- 0 
+        dat_saBC_pvm[[1]] <- plyr::colwise(as.numeric)(dat_saBC_pvm[[1]])
+      }
+  loca_pvm[[m]] <-
+      cbind(
+        lapply(dat_pvm_vol, function(x) x[[2]]) %>% as.matrix(),
+        lapply(dat_pvm_vox, function(x) x[[5]]) %>% as.matrix(),
+        lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()/2) %>% as.matrix(),
+        lapply(dat_saBC_int_intensity_pvm, function(x) x[[6]] %>% as.numeric %>% sum()) %>% as.matrix()
+        
+      )%>% as.data.frame()
+  print(loca_pvm[[m]])
+}
+
+tot_dat_pvm <- list(list())
+for (k in 1:length(folder_list)){
+    tot_dat_pvm[[k]] <- rbind(loca_pvm[[k]]) %>% as.data.frame()
+    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_pvm[[k]])
+    tot_dat_pvm[[k]]$Condition <- cond_tre_untre[k]
+    tot_dat_pvm[[k]]$File <- image_name[k]
+    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "Surf_Voxels", "saBC_SA", "saBC_SV", "Salicylate treatment","File Name")
+}
+
+pvm <- tot_dat_pvm %>% bind_rows()
+View(pvm)
+
+```
+
+
+
+
+
+
