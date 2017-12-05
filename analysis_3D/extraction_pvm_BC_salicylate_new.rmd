@@ -10,8 +10,8 @@ library(magrittr)
 
 ``` {r}
 #Declaring the path
-base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis"
-#base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
+#base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis"
+base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
 
 #Listing the folders list
 folder_list <- list.dirs(base_path)
@@ -71,6 +71,7 @@ for (k in 1:length(folder_list)){
 }
 
 pvm <- tot_dat_pvm %>% bind_rows()
+write.csv(pvm, file = "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
 View(pvm)
 
 ```

@@ -192,5 +192,6 @@ write.csv(total_uninf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_
 write.csv(total_all, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 View(total_all)
 
+
 ```
 
