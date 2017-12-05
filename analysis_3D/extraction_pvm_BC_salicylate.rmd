@@ -10,7 +10,8 @@ library(magrittr)
 
 ``` {r}
 #Declaring the path
-base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/"
+#base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/"
+base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
 
 #Listing the folders list
 folder_list <-
@@ -40,6 +41,9 @@ for (m in 1:length(folder_list))
     path_final <- sprintf("%s/%s", path, folder_tre_untre_list[p])
     print(path_final)
     file_timepoint <- list.dirs(path_final)
+    
+    file_name_temp <- list.dirs(path_final,full.names = FALSE) 
+    file_name_temp <- file_name_temp[-1]  # This is just to renumber the array number
     
     file_timepoint <- file_timepoint[-1]
     
@@ -82,6 +86,9 @@ for (m in 1:length(folder_list))
 
   for (k in 1:length(file_timepoint)){
     tot_dat_pvm[[k]] <- rbind(loca_pvm[[k]]) %>% as.data.frame()
+    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_pvm[[k]])
+    tot_dat_pvm[[k]]$File <- file_name_temp[k]
+    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "Surf_Voxels", "saBC_SA", "saBC_SV", "File Name")
   }
    pvm[[m]] <- tot_dat_pvm %>% bind_rows()
 }
