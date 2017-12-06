@@ -33,6 +33,10 @@ ggplot2::ggplot(dat_new) +
 
 ```{r}
 
+ggplot(dat_new) +
+  geom_boxplot(aes(Treatment,Surf_Voxels))
+
+
 ggplot2::ggplot(dat_new) +
   ggplot2::geom_boxplot(ggplot2::aes(dat_new$Treatment, y = dat_new$Surf_Voxels)) +
   ggplot2::geom_jitter(ggplot2::aes(dat_new$Treatment, y = dat_new$Surf_Voxels, fill = status, color = status), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
