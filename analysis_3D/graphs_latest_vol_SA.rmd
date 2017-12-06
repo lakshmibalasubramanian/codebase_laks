@@ -10,7 +10,7 @@ library(gridExtra)
 
 ```{r}
 #Reading the data file
-#dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
+dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 #dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
@@ -107,7 +107,7 @@ pvm_dat$Normalise_SV <- pvm_dat$Cell_Surf_Vox/5024.60
 
 all_dat <- rbind(cell_dat,pvm_dat)
 
-C <- scale_color_manual(all_dat$Status, values = c("Red"))
+#C <- scale_color_manual(all_dat$Status, values = c("Red"))
 
 
 
@@ -115,13 +115,25 @@ C <- scale_color_manual(all_dat$Status, values = c("Red"))
 ggplot2::ggplot(pvm_dat) +
   
   ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
-  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status)) + C +
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status)) +
   ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status)) +
   ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=12, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume and SV normalised to 24hpi") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("combined_plot.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("combined_plot1.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
   
+
+
+ggplot2::ggplot(pvm_dat) +
+  
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status)) +
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status),linetype =1, size = 0.8, alpha = 1) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=12, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of PVM normalised to 24hpi") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("Normalised_plot_SV_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  
+
+
 ```
 
 ```{r}
@@ -130,15 +142,12 @@ ggplot2::ggplot(dat_inf_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM), outlier.color = NA,  alpha = 0.9, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "black", cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-<<<<<<< HEAD
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Fraction of PVM to hepatocyte volume") + xlab("Timepoint of infection")
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Fraction of PVM in hepatocyte") + xlab("Timepoint of infection")
   ggplot2::ggsave("volume_ratio_cell_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
   ggplot2::ggsave("volume_ratio_cell_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
-=======
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Fraction of PVM and hepatocyte volume") + xlab("Timepoint of infection")
-  ggplot2::ggsave("volume_ratio_cell_PVM.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_ratio_cell_PVM.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
->>>>>>> origin/HEAD
+  ggplot2::ggsave("volume_ratio_cell_PVM.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_ratio_cell_PVM.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
 
 
 ```
