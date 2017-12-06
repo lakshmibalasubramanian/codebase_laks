@@ -1,0 +1,44 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+```
+
+```{r}
+#Reading the csv file from the path
+dat <- readr::read_csv("/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+dat_new <- as.data.frame(sapply(dat,gsub,pattern="_BCPVM_results",replacement=""))
+dat_new$status <- NA
+dat_new$status[dat_new$Treatment %in% "Treated"] <- "sal_trea"
+dat_new$status[dat_new$Treatment %in% "Untreated"] <- "sal_untrea"
+dat_new$Timepoint <- "24hpi"
+
+```
+
+```{r}
+#Plot for SA (voxels) of BC on PVM (salicylate)
+
+ggplot2::ggplot(dat_new) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_new$`Salicylate treatment`, dat_new$PVM_BC_SV, fill = dat_new$`Salicylate treatment`), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_new$`Salicylate treatment`, y = dat_new$PVM_BC_SV, fill = dat_new$`Salicylate treatment`, color = dat_new$`Salicylate treatment`), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of PVM") + xlab("Timepoint of infection")
+  ggplot2::ggsave("SA_Vox_BC_PVM.png", path = "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM.svg", path = "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+
+ggplot2::ggplot(dat_new) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_new$Treatment, y = dat_new$Surf_Voxels)) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_new$Treatment, y = dat_new$Surf_Voxels, fill = status, color = status), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection")
+  
+```
+
+

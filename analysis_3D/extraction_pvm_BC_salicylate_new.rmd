@@ -12,8 +12,8 @@ library(magrittr)
 
 
 #Declaring the path
-base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis"
-#base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
+#base_path <- "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis"
+base_path <- "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/"
 
 #Listing the folders list
 folder_list <- list.dirs(base_path)
@@ -33,8 +33,8 @@ for (m in 1:length(folder_list)){
   
       path_temp <- folder_list[m]
       temp <- strsplit(path_temp,"/")
-      cond_tre_untre[m] <- temp[[1]][7]
-      image_name[m] <- temp[[1]][8]
+      cond_tre_untre[m] <- temp[[1]][8]
+      image_name[m] <- temp[[1]][9] 
       
       dat_pvm <- list()
       for (i in 1:length(files_csv_list)){
@@ -69,11 +69,14 @@ for (k in 1:length(folder_list)){
     tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_pvm[[k]])
     tot_dat_pvm[[k]]$Condition <- cond_tre_untre[k]
     tot_dat_pvm[[k]]$File <- image_name[k]
-    colnames(tot_dat_pvm[[k]]) <- c("cell_Vol", "Surf_Voxels", "saBC_SA", "saBC_SV", "Salicylate treatment","File Name")
+    colnames(tot_dat_pvm[[k]]) <- c("pvm_Vol", "Surf_Voxels", "PVM_BC_SA", "PVM_BC_SV", "Treatment","ImageName")
 }
 
 pvm <- tot_dat_pvm %>% bind_rows()
-write.csv(pvm, file = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+pvm <- as.matrix(pvm)
+
+
+write.csv(pvm, file = "/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
 View(pvm)
 
 ```
