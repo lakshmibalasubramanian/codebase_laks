@@ -16,7 +16,7 @@ library(cluster)
 # Read the csv file
 
 
-dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_master.csv")  # Input file i.e.csv: Change the input file accordingly 
+dat <- readr::read_csv("/media/lab-admin/data/Lakshmi/Tubeness_infected_uninfected/Analysis/salicylate_data_master.csv")  # Input file i.e.csv: Change the input file accordingly 
 
 
 # Replacing the list_treated as Treated & similarly untreated also
@@ -258,19 +258,16 @@ Status1 <- factor(dat_5pix$Status, levels = c('Untreated', 'Treated'), ordered =
 Cell_status1 <- factor(dat_5pix$Cell_status, levels = c('uninf','inf'), ordered = TRUE)
 
 #This is to change the color of the jitter points of user's choice
-P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "Red"))
+P <- scale_color_manual(dat_5pix$Cell_status,values = c("Turquoise4", "red"))
 
 # Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experiments
 ggplot2::ggplot(dat_5pix) +
-  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
-  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(Numberofbranches)), size = 3, fontface = "bold") +
-  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(Numberofbranches)), size = 3, fontface = "bold") +
-  geom_text(aes(label = sprintf("5Pixel expansion\n"),x = 1.5, y = max(Numberofbranches)-0.5), size = 3.5, colour = "blue") +
-  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
-  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
-  ggplot2::ggsave("Branch_Points_5pix.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)+
-  ggplot2::ggsave("Branch_Points_5pix.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Graphs_all_pixels_expanded", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Numberofbranches, fill = Cell_status), size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Numberofbranches, color = Cell_status1), cex = 2.0, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.7)) + P + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(),  legend.title = element_blank()) +ylab("Number of branch points in Bile canaliculi") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("Branch_Points_5pix1.png", path = "/media/lab-admin/data/Lakshmi/Tubeness_infected_uninfected/Analysis/graphs_new_dec17", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points_5pix1.svg", path = "/media/lab-admin/data/Lakshmi/Tubeness_infected_uninfected/Analysis/graphs_new_dec17", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r} 
