@@ -10,7 +10,7 @@ library(magrittr)
 
 
 #Declaring the path
-base_path <- "/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail"
+base_path <- "/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail"
 
 folders_hpi <- c(
   "Treated",
@@ -46,7 +46,7 @@ for (m in 1:length(folders_hpi)){
   file_names <- file_names[-1]
 
   #This command is to grep for a pattern (given in quotes) from file_names and replace with nothing
-  file_names1 <- gsub("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", "",file_names)
+  file_names1 <- gsub("/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", "",file_names)
  
  
  for (i in 1:length(file_names))
@@ -107,11 +107,11 @@ for (m in 1:length(folders_hpi)){
  
  #Writing the csv file for the integrated intensity of CD13 on the PVM (using CP perimetrics) for both the time points
  colnames(dat_tot_int) <- c("Imagename", "NumberFrames", "NumberFrames_PVM", "IntegratedIntensityCD13", "Timepoint", "AreaPVM(mean)")
- write.csv(dat_tot_int, file = "/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master.csv")
+ write.csv(dat_tot_int, file = "/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master.csv")
  
  #Writing the csv file for area of PVM from the Perimetrics data for both the timepoints
  colnames(dat_area_pvm) <- c("Area_PVM", "Timepoint")
- write.csv(dat_area_pvm, file = "/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_area_PVM_salicylate_master.csv")
+ write.csv(dat_area_pvm, file = "/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_area_PVM_salicylate_master.csv")
 ```
 
 
