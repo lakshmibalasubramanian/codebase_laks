@@ -29,14 +29,17 @@ dat_new_untreat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Untreated")
 
 
 ```{r}
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Treatment1 <- factor(dat_new$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
 
 ggplot2::ggplot(dat_new) +
-  ggplot2::geom_boxplot(ggplot2::aes(Treatment, PVM_BC_SV, fill = status), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = PVM_BC_SV, fill = status, color = status), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment1, PVM_BC_SV), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = PVM_BC_SV, fill = Treatment1), colour = "red", cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment") +
-  ggplot2::ggsave("SA_Vox_BC_PVM.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_PVM.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment") +
+  ggplot2::ggsave("SA_Vox_BC_PVM1.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM1.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
