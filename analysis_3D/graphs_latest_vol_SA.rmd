@@ -120,13 +120,24 @@ all_dat <- rbind(cell_dat,pvm_dat)
 
 ggplot2::ggplot(pvm_dat) +
   
-  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status),linetype =1, size=0.8, alpha = 1) +
-  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status)) +
-  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status)) +
-  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status),linetype =2, size = 0.8, alpha = 1) + 
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status),linetype =1, size=1.0, alpha = 1, color = "red") +
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status), colour = "red") +
+
+  ggplot2::geom_point(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status, colour = "red")) +
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status),linetype =2, size = 1.0, alpha = 1, color = "red") + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=12, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume and SV normalised to 24hpi") + xlab("Timepoint of infection") +
+  theme(axis.title = element_text(size=12, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Volume and SV normalised to 24hpi") + xlab("Timepoint of infection") +
   ggplot2::ggsave("combined_plot1.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  
+write.csv(pvm_dat, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol/pvm_dat.csv")
+
+ggplot2::ggplot(pvm_dat) +
+  
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_volume, group = Status, color = Status),linetype =1, size=1.0, alpha = 1, color = "red") +
+  ggplot2::geom_line(ggplot2::aes(Timepoint, pvm_dat$Normalise_SV, group = Status, color = Status),linetype =2, size = 1.0, alpha = 1, color = "red")
+  
+
+  
   
 
 
