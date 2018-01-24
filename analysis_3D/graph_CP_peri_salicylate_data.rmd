@@ -10,7 +10,7 @@ library(magrittr)
 
 ```{r}
 #Reading the csv file from the path
-dat <- readr::read_csv("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master.csv")
+dat <- readr::read_csv("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master_copy.csv")
 
 data_area <- readr::read_csv("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_area_PVM_salicylate_master.csv")
 ```
@@ -31,12 +31,12 @@ test_treat_untreat <- t.test(dat %>% filter(Timepoint == "Treated") %>% dplyr::s
 Timepoint1 <- factor(dat$Timepoint, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
 ggplot2::ggplot(dat) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint1, IntegratedIntensityCD13), outlier.color = NA, size = 1.0, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) + 
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint1, IntegratedIntensityCD13), outlier.color = NA, size = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) + 
   ggplot2::geom_jitter(ggplot2::aes(Timepoint1, y = IntegratedIntensityCD13, fill = Timepoint1), colour = "red", cex = 2.0, alpha = 0.7, position =position_jitterdodge(0.2,0.2,0.7))+
   ggplot2::theme_bw()+ theme(axis.text = element_text(size=14, colour = "black", face = "bold")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line(colour = "black")) + ylab("Total intensity of Bile canaliculi \n on PVM") + xlab("Salicylate treatment (24hpi)") +
-  ggplot2::ggsave("boxplot_Perimetrics_sal1.png", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300) +
-  ggplot2::ggsave("boxplot_Perimetrics_sal1.svg", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300)
+  ggplot2::ggsave("boxplot_Perimetrics_sal2.png", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300) +
+  ggplot2::ggsave("boxplot_Perimetrics_sal2.svg", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300)
 
 ```
 
