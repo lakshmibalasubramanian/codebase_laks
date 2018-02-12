@@ -41,12 +41,30 @@ P <- scale_color_manual(dat_inf_uninf$Status,values = c("Turquoise4", "Red"))
 #Plot for volume of the infected hepatocytes (24,33,48 hpi)
 
 ggplot2::ggplot(dat_inf_uninf) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status1), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, color = Status1), cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + P +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status1), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.6, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, color = Status1), cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + P + 
+  scale_x_discrete(expand=c(0,0), breaks = c("24hpi", "33hpi", "48hpi"))+ 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.2,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0)) + ylab("Volume of infected hepatocytes (micron^3)") + xlab("Timepoint of infection")
   ggplot2::ggsave("volume_inf_hepatocyte1.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300) +
   ggplot2::ggsave("volume_inf_hepatocyte1.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 8, height = 8, units = "in", dpi = 300)
+  
+  
+test1 = 0.000567  
+ggplot2::ggplot(dat_inf_uninf) +
+  ggplot2::geom_boxplot(ggplot2::aes(x = dat_inf_uninf$Timepoint, y = dat_inf_uninf$Cell_Vol), outlier.shape = NA, notch= FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(x = dat_inf_uninf$Timepoint, y = dat_inf_uninf$Cell_Vol, color = Status1), alpha = 0.75) +
+  labs(main = "", x= "", y= expression(paste("Average length of BC ( ", mu, "m)")))+
+  theme(
+    strip.text = element_text(margin(0,2,0,2), size = rel(1.0)),
+    axis.title.x = element_text(margin = margin(0,0,0,0), colour = "gray40", size=rel(1.0)),
+    axis.title.y = element_text(margin = margin(0,20,0,0), colour = "gray40", size=rel(1.0), angle=90),
+    panel.background = element_rect(fill="white"),
+    panel.grid.minor.y = element_line(size=0.5),
+    panel.grid.major = element_line(colour = "grey90"),
+    panel.grid.minor = element_line(colour = "grey90")
+  )  
+  
 ```
 
 
