@@ -1,0 +1,74 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+```
+
+```{r}
+#Reading the data file
+dat_maruthi <- list(list())
+
+dat_deb <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
+dat_deb$Timepoint <- NA
+dat_deb$Timepoint[grep("2", dat$Name)] <- "24hpi"
+
+
+
+dat_maruthi_sal <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
+dat_maruthi_sal$Timpoint <-NA
+dat_maruthi_sal$Timpoint <- "48hpi"
+dat_maruthi_sal$Status <- NA
+dat_maruthi_sal$Status <- "Treated"
+
+dat_maruthi_ctrl <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
+dat_maruthi_ctrl$Timepoint <- NA
+dat_maruthi_ctrl$Timepoint <- "48hpi"
+dat_maruthi_ctrl$Status <- NA
+dat_maruthi_ctrl$Status <- "Untreated"
+
+colnames(dat_maruthi_ctrl) <- colnames(dat_maruthi_sal)
+dat_maruthi <- rbind(dat_maruthi_sal, as.data.frame(dat_maruthi_ctrl))
+
+dat_deb_temp <- data.frame() %>% nrow() %>% ncol()
+x <- c(1:10)
+#col <- colnames(dat_maruthi_ctrl)
+dat_deb_temp <- rbind(dat_deb_temp, x)
+#colnames(dat_deb_temp) <- col
+
+dat_deb_temp <- 
+  cbind(
+    dat_deb %>% dplyr::select(BC.Length)%>%as.matrix(),
+    dat_deb %>% dplyr::select(No.Branch)%>%as.matrix(),
+    dat_deb %>% dplyr::select(BL.avgLength)%>%as.matrix() bh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    )%>% as.data.frame()
+
+
+a <- dat_deb %>% dplyr::select(BC.Length)%>% as.matrix()
+b <-  dat_deb %>% dplyr::select(No.Branch)%>% as.matrix()
+dat_deb_temp <- cbind(dat_deb_temp, a, b)
+
+
+
+
+
+
+```
+
+```{r}
+Type1 <- factor(dat$Type, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat$Type, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Type1, No.Branch), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Type1, y = No.Branch, color = Type1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches") + xlab("Timepoint of infection (24hpi)") 
+  ggplot2::ggsave("volume_PVM3.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_PVM3.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 4, height = 5, units = "in", dpi = 300)
+```
