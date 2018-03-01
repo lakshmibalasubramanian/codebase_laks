@@ -10,9 +10,10 @@ library(gridExtra)
 
 ```{r}
 #Reading the data file
-dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
+#dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
-#dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
+
+dat <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 dat_uninf <- dat %>% dplyr::filter(dat$Status == "UNINF")
 dat_infec <- dat %>% dplyr::filter(dat$Status == "INF")

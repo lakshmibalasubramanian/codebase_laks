@@ -10,65 +10,346 @@ library(gridExtra)
 
 ```{r}
 #Reading the data file
-dat_maruthi <- list(list())
 
-dat_deb <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
+#dat_deb <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
+dat_deb <- readr::read_csv("/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
+
 dat_deb$Timepoint <- NA
-dat_deb$Timepoint[grep("2", dat$Name)] <- "24hpi"
+dat_deb$Timepoint[grep("2",dat_deb$Name)] <- "24hpi"
 
 
 
-dat_maruthi_sal <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
+#dat_maruthi_sal <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
+dat_maruthi_sal <- readr::read_csv("/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
+
 dat_maruthi_sal$Timpoint <-NA
 dat_maruthi_sal$Timpoint <- "48hpi"
 dat_maruthi_sal$Status <- NA
 dat_maruthi_sal$Status <- "Treated"
 
-dat_maruthi_ctrl <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
+#dat_maruthi_ctrl <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
+dat_maruthi_ctrl <- readr::read_csv("/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
+
 dat_maruthi_ctrl$Timepoint <- NA
 dat_maruthi_ctrl$Timepoint <- "48hpi"
 dat_maruthi_ctrl$Status <- NA
 dat_maruthi_ctrl$Status <- "Untreated"
 
 colnames(dat_maruthi_ctrl) <- colnames(dat_maruthi_sal)
-dat_maruthi <- rbind(dat_maruthi_sal, as.data.frame(dat_maruthi_ctrl))
+
+dat_maruthi <- data.frame() %>% nrow() %>% ncol()
+
+dat_maruthi <- rbind(dat_maruthi_sal, as.data.frame(dat_maruthi_ctrl)) %>% as.data.frame()
+dat_maruthi$NorBCImagevol <- NA
+dat_maruthi$NorBCImagevol <- dat_maruthi$Branches/dat_maruthi$Totalimagedvolume
+dat_maruthi$NorTotal_length <- NA
+dat_maruthi$NorTotal_length <- round((dat_maruthi$Total_length/dat_maruthi$Totalimagedvolume),digits = 4)
+
 
 dat_deb_temp <- data.frame() %>% nrow() %>% ncol()
-x <- c(1:10)
-#col <- colnames(dat_maruthi_ctrl)
-dat_deb_temp <- rbind(dat_deb_temp, x)
-#colnames(dat_deb_temp) <- col
+
 
 dat_deb_temp <- 
   cbind(
-    dat_deb %>% dplyr::select(BC.Length)%>%as.matrix(),
+    dat_deb %>% dplyr::select(BC.Length)%>%as.matrix() %>% as.numeric(),
     dat_deb %>% dplyr::select(No.Branch)%>%as.matrix(),
-    dat_deb %>% dplyr::select(BL.avgLength)%>%as.matrix() bh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    dat_deb %>% dplyr::select(BL.avgLength)%>%as.matrix(),
+    dat_deb %>% dplyr::select(BC.Vol)%>%as.matrix(),
+    dat_deb %>% dplyr::select(Mean.BC.Dia)%>%as.matrix(),
+    dat_deb %>% dplyr::select(Mean.BC.CS)%>%as.matrix(),
+    dat_deb %>% dplyr::select(Imaged.vol)%>%as.matrix(),
+    dat_deb %>% dplyr::select(BC.vol.frac)%>%as.matrix(),
+    dat_deb %>% dplyr::select(Timepoint)%>%as.matrix(),
+    dat_deb %>% dplyr::select(Type)%>%as.matrix()
     )%>% as.data.frame()
 
+col <- colnames(dat_maruthi_ctrl)
+colnames(dat_deb_temp) <- col
 
-a <- dat_deb %>% dplyr::select(BC.Length)%>% as.matrix()
-b <-  dat_deb %>% dplyr::select(No.Branch)%>% as.matrix()
-dat_deb_temp <- cbind(dat_deb_temp, a, b)
+dat_master <- rbind(dat_maruthi,dat_deb_temp) %>% as.data.frame()
+
+dat_master <- data.frame(lapply(dat_master,as.numeric))
+
+D <- transform(dat_master, Timpoint = as.character(Timpoint),
+                          Status = as.character(Status),
+                          Total_length = as.numeric(Total_length),
+                          Branches = as.numeric(Branches),
+                          Averbranchleng = as.numeric(Averbranchleng),
+                          TotalBCvolume = as.numeric(TotalBCvolume),
+                          `MeanBC(tube)diameter` = as.numeric(`MeanBC(tube)diameter`),
+                          `MeanBC(tube)crosssection` = as.numeric(`MeanBC(tube)crosssection`),
+                          Totalimagedvolume = as.numeric(Totalimagedvolume)
+               )
+
+dat_24 <- D %>% dplyr::filter(D$Timpoint == "24hpi")
+dat_24$NorBCImageVol <- NA
+dat_24$NorBCImageVol <- round((dat_24$Branches/dat_24$Totalimagedvolume),digits = 4)
+dat_24$NorTotal_length <- NA
+dat_24$NorTotal_length <- round((dat_24$Total_length/dat_24$Totalimagedvolume),digits = 4)
 
 
 
+dat_maruthi_treat <- dat_maruthi%>%dplyr::filter(dat_maruthi$Status == "Treated")
+dat_maruthi_untreat <- dat_maruthi%>%dplyr::filter(dat_maruthi$Status == "Untreated")
 
-
+dat_24_treat <- dat_24 %>%dplyr::filter(dat_24$Status == "Treated")
+dat_24_untreat <- dat_24 %>%dplyr::filter(dat_24$Status == "Untreated")
 
 ```
 
 ```{r}
-Type1 <- factor(dat$Type, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Status1 <- factor(D$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
-P <- scale_color_manual(dat$Type, values = c("Turquoise4", "Red"))
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
 
-ggplot2::ggplot(dat) +
-  ggplot2::geom_boxplot(ggplot2::aes(Type1, No.Branch), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Type1, y = No.Branch, color = Type1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+ggplot2::ggplot(D) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Branches, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Branches, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches") + xlab("Timepoint of infection (24hpi)") 
-  ggplot2::ggsave("volume_PVM3.png", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_PVM3.svg", path = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/Graphs_SA_vol", width = 4, height = 5, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.3,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("branches_sali_combined.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_sali_combined.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+#----------------------------------------------------------------------------------------------
+Status1 <- factor(D$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Branches, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Branches, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("branches_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_branch_48 <- t.test(dat_maruthi_treat %>% dplyr::select(Branches) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(Branches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,NorBCImagevol, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = NorBCImagevol, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("branches_sali_48_nor.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_sali_48_nor.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_norbranch_48 <- t.test(dat_maruthi_treat %>% dplyr::select(NorBCImagevol) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(NorBCImagevol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+#----------------------------------------------------------------------------------------------
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Branches, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Branches, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("branches_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_bran_24 <- t.test(dat_24_treat%>% dplyr::select(Branches) %>% as.matrix(), dat_24_untreat %>% dplyr::select(Branches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,dat_24$NorBCImageVol, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = dat_24$NorBCImageVol, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.0001,1.0))  + P + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("branches_sali_24_nor.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_sali_24_nor.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_norbran_24 <- t.test(dat_24_treat%>% dplyr::select(NorBCImageVol) %>% as.matrix(), dat_24_untreat %>% dplyr::select(NorBCImageVol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+```
+
+
+```{r}
+Status1 <- factor(D$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(D) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Averbranchleng, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Averbranchleng, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.5,0.95), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Average length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("avglengBC_sali_combined.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("avglengBC_sali_combined.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+#----------------------------------------------------------------------------------------------
+Status1 <- factor(D$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Averbranchleng, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Averbranchleng, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Average length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("avglengBC_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("avglengBC_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_avgleng_48 <- t.test(dat_maruthi_treat %>% dplyr::select(Averbranchleng) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(Averbranchleng) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+#----------------------------------------------------------------------------------------------
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Averbranchleng, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Averbranchleng, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Average length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("avglengBC_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("avglengBC_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_avgleng_24 <- t.test(dat_24_treat%>% dplyr::select(Averbranchleng) %>% as.matrix(), dat_24_untreat %>% dplyr::select(Averbranchleng) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+```
+
+```{r}
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(D) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,MeanBC.tube.diameter, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = MeanBC.tube.diameter, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.5,0.95), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Mean diameter of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("meandiaBC_sali_combined.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("meandiaBC_sali_combined.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_maruthi$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,`MeanBC(tube)diameter`, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = `MeanBC(tube)diameter`, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Mean diameter of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("meandiaBC_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("meandiaBC_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+
+tes_dia_48 <- t.test(dat_maruthi_treat %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(`MeanBC(tube)diameter`) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_24$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,MeanBC.tube.diameter, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = MeanBC.tube.diameter, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Mean diameter of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("meandiaBC_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("meandiaBC_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_avgleng_24 <- t.test(dat_24_treat%>% dplyr::select(MeanBC.tube.diameter) %>% as.matrix(), dat_24_untreat %>% dplyr::select(MeanBC.tube.diameter) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+```
+
+```{r}
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(D) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Total_length, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Total_length, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.5,0.95), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("totlengBC_sali_combined.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("totlengBC_sali_combined.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_maruthi$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Total_length, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Total_length, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("totlengBC_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("totlengBC_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_len_48 <- t.test(dat_maruthi_treat %>% dplyr::select(Total_length) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(Total_length) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,NorTotal_length, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = NorTotal_length, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.0001,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("nortotlengBC_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("nortotlengBC_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_norlen_48 <- t.test(dat_maruthi_treat %>% dplyr::select(NorTotal_length) %>% as.matrix(), dat_maruthi_untreat %>% dplyr::select(NorTotal_length) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_24$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Total_length, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Total_length, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("totlengBC_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("totlengBC_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_leng_24 <- t.test(dat_24_treat%>% dplyr::select(Total_length) %>% as.matrix(), dat_24_untreat %>% dplyr::select(Total_length) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,NorTotal_length, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = NorTotal_length, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.001,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("nortotlengBC_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("nortotlengBC_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+tes_norleng_24 <- t.test(dat_24_treat%>% dplyr::select(NorTotal_length) %>% as.matrix(), dat_24_untreat %>% dplyr::select(NorTotal_length) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+```
+
+
+```{r}
+
+P <- scale_color_manual(D$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(D) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Totalimagedvolume, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Totalimagedvolume, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.25,0.95), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Imaged volume(x1000 micron^3)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("imagedvol_sali_combined.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("imagedvol_sali_combined.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_maruthi$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_maruthi) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Totalimagedvolume, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Totalimagedvolume, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Imaged volume(x1000 micron^3)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("imagedvol_sali_48.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("imagedvol_sali_48.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+
+
+#----------------------------------------------------------------------------------------------
+P <- scale_color_manual(dat_24$Status, values = c("Turquoise4", "Red"))
+
+ggplot2::ggplot(dat_24) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Totalimagedvolume, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Totalimagedvolume, color = Status), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Imaged volume(x1000 micron^3)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("imagedvol_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("imagedvol_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
 ```
