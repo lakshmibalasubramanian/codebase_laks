@@ -1,1 +1,14 @@
-//Try this
+//Ins
+```{r}
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("GenomicFeatures", "AnnotationDbi"))
+biocLite("KEGGREST")
+biocLite("GenomicFeatures")
+
+
+
+library(KEGGREST)
+library(AnnotationDbi)
+library()
+```
