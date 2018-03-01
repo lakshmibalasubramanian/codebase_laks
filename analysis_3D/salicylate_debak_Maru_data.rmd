@@ -19,6 +19,7 @@ dat_deb$Timepoint[grep("2",dat_deb$Name)] <- "24hpi"
 
 
 
+
 #dat_maruthi_sal <- readr::read_csv("/media/lab-admin/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
 dat_maruthi_sal <- readr::read_csv("/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
 
