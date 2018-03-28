@@ -96,6 +96,8 @@ dat_maruthi_untreat <- dat_maruthi%>%dplyr::filter(dat_maruthi$Status == "Untrea
 dat_24_treat <- dat_24 %>%dplyr::filter(dat_24$Status == "Treated")
 dat_24_untreat <- dat_24 %>%dplyr::filter(dat_24$Status == "Untreated")
 
+write.csv(dat_maruthi, file = "/Volumes/VS_lab_disk/Maruthi_data/dat_maruthi_48hpi.csv")
+write.csv(dat_deb, file = "/Volumes/VS_lab_disk/Maruthi_data/dat_debakshi_24hpi.csv")
 ```
 
 ```{r}
