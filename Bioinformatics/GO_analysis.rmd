@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //Try this
 ```{r}
 #source("https://bioconductor.org/biocLite.R")
@@ -34,3 +35,19 @@ for (m in 1:length(gene_id)){
 }
 
 ```
+=======
+//Ins
+```{r}
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("GenomicFeatures", "AnnotationDbi"))
+biocLite("KEGGREST")
+biocLite("GenomicFeatures")
+
+
+
+library(KEGGREST)
+library(AnnotationDbi)
+library()
+```
+>>>>>>> origin/master
