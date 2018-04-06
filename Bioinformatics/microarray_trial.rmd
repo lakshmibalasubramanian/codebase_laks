@@ -1,0 +1,53 @@
+##Installing required packages
+```{r}
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("affy", "limma")) ##Packages required for microarray analysis
+```
+
+##Loading packages
+```{r}
+library(magrittr)
+library(affy)
+library(limma)
+```
+
+##Reading the microarray data from the file/folder
+```{r}
+##If you use Affymetrix chips your microarray data will consist of a series of CEL files containing raw intensities for each probe on the array. Save all CEL files you want to analyze in a single directory. They may be gzipped (*.gz) - you do not need to gunzip them
+celfilepath = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/430A"
+
+##Import all the CEL files by a single command using the ReadAffy() method. ReadAffy will read all CEL files in the folder and load them into an AffyBatch object in R
+#Reading cel files
+data <- ReadAffy(celfile.path = celfilepath)
+
+target <- readTargets("list_cel.txt", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/")
+
+```
+
+##Robust multi-array average (RMA) and extract the expression data and saving the expression data to a file
+```{r}
+# converts an AffyBatch object into an ExpressionSet object 
+data_rma = rma(data, normalize = TRUE)
+
+#Prepare expression matrix
+exp <- data_rma@assayData$exprs
+
+#Transfering the expression data to the desired folder
+write.table(data_rma, "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430/normalised_RMA.eset")
+
+exp %>% as.data.frame() %>% write.csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430/expression_data.csv")
+
+```
+
+```{r, eval=TRUE, echo=TRUE}
+d <- model.matrix(~ 0 + factor(target$file))
+colnames(d) <- levels(factor(target$file))
+fit.rma <- lmFit(data_rma, d)
+hmcols <- colorRampPalette(c("red", "white", "blue"))(n=256) ##color palette for Heatmap
+```
+
+
+
+
+
