@@ -21,7 +21,7 @@ celfilepath = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data
 #Reading cel files
 data <- ReadAffy(celfile.path = celfilepath)
 
-target <- readTargets("list_cel.txt", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/")
+target <- readTargets("list_cel_new.txt", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/")
 
 ```
 
@@ -40,6 +40,10 @@ exp %>% as.data.frame() %>% write.csv("/media/lab-admin/VS_lab_disk/Lakshmi_work
 
 ```
 
+## To access the genes differentially expressed between late infection and early infection
+
+### first the variability of the data was assessed by fitting a linear model which modelled the systematic part of the data.
+
 ```{r, eval=TRUE, echo=TRUE}
 d <- model.matrix(~ 0 + factor(target$file))
 colnames(d) <- levels(factor(target$file))
@@ -47,7 +51,50 @@ fit.rma <- lmFit(data_rma, d)
 hmcols <- colorRampPalette(c("red", "white", "blue"))(n=256) ##color palette for Heatmap
 ```
 
+```{r, eval=TRUE, echo=TRUE}
+cont.mat <- makeContrasts(A1A_10_11_clo1 = "A1A_10_11_clone1-A1A_21_emptyvector",
+                          A1A_3_10_clo2 = "A1A_3_10_clone2-A1A_21_emptyvector",
+                          A2A_10_11_clo1 = "A2A_10_11_clone1-A2A_21_emptyvector",
+                          A2A_3_10_clo2 = "A2A_3_10_clone2-A2A_21_emptyvector",
+                          levels=d)
+
+cont.mat <- makeContrasts(A_10_11_clo1 = "A_10_11_clone1-A_21_emptyvector",
+                          A_3_10_clo2 = "A_3_10_clone2-A_21_emptyvector",
+                          levels=d)
+
+fit.1.rma <- contrasts.fit(fit.rma,
+                           cont.mat)
+```
 
 
+### Then the differential expression was calculated by empirical Bayes shrinkage which moderated the standard deviations between genes.
+
+```{r, eval=TRUE, echo=TRUE}
+fit.1.rma <- eBayes(fit.1.rma)
+```
+
+### To assess significance and differential expression (DE)
+```{r, eval=TRUE, echo=TRUE}
+
+results <- decideTests(fit.1.rma, method = "separate", adjust.method = "fdr", p.value = 0.05, lfc = 1)
+
+```
+
+### Extract a table of the top-ranked genes from a linear model fit
+```{r, eval=TRUE, echo=TRUE}
+results_top <- topTable(fit.1.rma, coef = 2, adjust.method = "fdr", p.value = 0.05, lfc = 1, number = 10000)
+
+```
+
+### To assess significance and differential expression (DE), so that the expected false discovery rate is less than 5%.
+```{r, eval=TRUE, echo=TRUE}
+
+select_pval <- p.adjust(fit.1.rma$p.value[,2], method = "fdr") < 0.05
+
+```
+### The Venn Diagram
+```{r, eval=TRUE, echo=TRUE}
+vennDiagram(results)
+```
 
 
