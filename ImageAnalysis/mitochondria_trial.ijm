@@ -62,7 +62,7 @@ saveAs("Tiff",output1+"Closed.tif");
 
 ///Calculating the Tubeness of BC///
 selectImage("Closed.tif");
-run("Tubeness", "sigma="+d2s(SigmaRadius,2)+" use");
+run("Tubeness", "sigma="+d2s(SigmaRadius,1.0)+" use");
 rename("Tubeness.tif");
 saveAs("Tiff",output1+"Tubeness.tif");
 
