@@ -6,6 +6,7 @@ library(magrittr)
 library(svglite)
 library(grid)
 library(gridExtra)
+library(ggsignif)
 ```
 
 ```{r}
@@ -19,25 +20,55 @@ dat_new$status[dat_new$Treatment %in% "Untreated"] <- "sal_untrea"
 dat_new$Timepoint <- "24hpi"
 
 col_name <- c("pvm_Vol", "Surf_Voxels", "PVM_BC_SA", "PVM_BC_SV")
-dat_new[col_name] <- sapply(dat_new[col_name], as.numeric)
+
+
+
+dat_new_tmp$pvm_Vol <- as.numeric(as.character(dat_new_tmp$pvm_Vol))
+
+#Assigning the digits for the numerics minimum should be 15 all the time.
+options(digits = 15)
+
+#Below command is to convert few of the columns from character to numeric
+dat_new[col_name] <- sapply(dat_new[col_name], function(x) as.numeric(as.character(x))) 
 
 dat_new_treat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Treated")
 dat_new_untreat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Untreated")
 
 ```
 
+```{r}
+test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_new_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+asterisk = ""
+
+if (test_SV_BC_PVM$p.value < 0.001) {
+  asterisk = "***"
+} else if (test_SV_BC_PVM$p.value < 0.01){
+  asterisk = "**"
+} else if (test_SV_BC_PVM$p.value < 0.05){
+  asterisk = "*"
+} else if (test_SV_BC_PVM$p.value < 0.1){
+  asterisk = "."
+}
+```
 
 
 ```{r}
 # Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+
+test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_new_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+pval <- test_SV_BC_PVM$p.value
+
 Treatment1 <- factor(dat_new$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
 
-ggplot2::ggplot(dat_new) +
+P<-ggplot2::ggplot(dat_new) +
   ggplot2::geom_boxplot(ggplot2::aes(Treatment1, PVM_BC_SV), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
   ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = PVM_BC_SV, fill = Treatment1), colour = "red", cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment") +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment")
+   P + geom_signif(annotations = c(formatC(pval, digits = 4)), y_position = c(40), xmin = c(2.0), xmax = c(3.0))
   ggplot2::ggsave("SA_Vox_BC_PVM1.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
   ggplot2::ggsave("SA_Vox_BC_PVM1.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
 ```
