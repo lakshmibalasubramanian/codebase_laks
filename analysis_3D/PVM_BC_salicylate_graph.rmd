@@ -49,7 +49,18 @@ if (test_SV_BC_PVM$p.value < 0.001) {
   asterisk = "*"
 } else if (test_SV_BC_PVM$p.value < 0.1){
   asterisk = "."
+} else if (test_SV_BC_PVM$p.value > 0.1){
+  asterisk = "ns"
 }
+
+Significance <- function(x){
+  symnum(x, corr = FALSE, na = FALSE, legend = FALSE,
+           cutpoints = c(0, 0.001, 0.01, 0.05, 0.1), 
+           symbols = if (numeric.x) c("***", "**", "*", ".")
+                      else c("ns"))
+}
+
+Significance(0.3)
 ```
 
 
