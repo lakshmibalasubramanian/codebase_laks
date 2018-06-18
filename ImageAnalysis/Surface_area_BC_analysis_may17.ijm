@@ -88,6 +88,7 @@ run("AVI... ", "compression=JPEG frame=10 save=["+output1+"PVM_BC_surface.avi]")
 
 close("Result of PVM.labels");
 selectWindow("PVM_BC_surface");
+
 getStatistics(area, mean, min, max, std, histogram);
 if (max < 128) threshold = max;
 else threshold = 128;
