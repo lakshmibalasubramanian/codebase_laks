@@ -47,7 +47,6 @@ setAutoThreshold("Default dark");
 waitForUser("Threshold", "Please adjust threshold and then click OK"); 
 run("Convert to Mask", "stack");
 run("Dilate", "stack");
-run("Dilate", "stack");
 run("Erode", "stack");
 run("Fill Holes", "stack");
 
@@ -81,10 +80,11 @@ selectWindow("PVM.labels");
 
 //This steps is to duplicate the PVM mask & threshold it to convert to binary. It was 0 & 1. Multiply the image with 255 to make it 0 & 255.
 run("Duplicate...", "duplicate");
-run("Threshold...");
-wait(1000); 
-setAutoThreshold("Default dark");
-waitForUser("Threshold", "Please adjust threshold and then click OK");
+//run("Threshold...");
+//wait(1000); 
+//setAutoThreshold("Default dark");
+setThreshold(1, 255);
+//waitForUser("Threshold", "Please adjust threshold and then click OK");
 run("Multiply...", "value=255.000 stack");
 
 //Subtract the PVM mask(0 & 255) from thresholded CD13 resulting in the new dupli image of CD13.
@@ -177,7 +177,7 @@ rename("Infec_Cells_BC_surface");
 //Saving the BC mask that is on the surface of the infected hepatocyte
 run("AVI... ", "compression=JPEG frame=10 save=["+output1+"Infec_Cells_BC_surface.avi]");
 
-close("Result of Infected_cell.labels");
+close("Result of Infected_cell.labels1");
 selectWindow("Infec_Cells_BC_surface");
 run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 //selectWindow("Statistics for Infec_Cells_BC_surface");
@@ -194,9 +194,10 @@ close("Objects map of Infec_Cells_BC_surface");
 close("Surface map of Infec_Cells_BC_surface");
 close("Centroids map of Infec_Cells_BC_surface");
 close("Centres of mass map of Infec_Cells_BC_surface");
+//close("Result of Infected_cell.labels1");
 //selectWindow("C4-dupli_image-1"); //$ Phalloidin channel
 //rename("C4-dupli_image");     //$ Phalloidin channel
-/*
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Segmentation of uninfected cells (5) using segmentation editor; Saving the obtained results file (volume of the cell, Surface area of bile canaliculi) as .csv 
@@ -219,7 +220,7 @@ for(i=0;i<5;i++)
 	
 	run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 	name = ""+n+"Uninfected_cell.labels";
-	selectWindow("Statistics for "+name);
+	//selectWindow("Statistics for "+name);
 	saveAs("Results", output1+n+"statistics_uninf_cell.csv"); 
 	selectWindow(n+"Uninfected_cell.labels");
 	imageCalculator("Subtract create stack", ""+n+"Uninfected_cell.labels","C2-dupli_image-2"); //$ CD13/BC channel
@@ -237,11 +238,14 @@ for(i=0;i<5;i++)
 	selectWindow(n+"Uninf_Cells_BC_surface");
 	run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 	name_new = ""+n+"Uninf_Cells_BC_surface";
-	selectWindow("Statistics for "+name_new);
+	//selectWindow("Statistics for "+name_new);
 	saveAs("Results",output1+n+"statistics_uninf_surfacearea_BC.csv");
 	
 	//Closing all the windows that are opened during the processing of 3D object counter. If these windows are opened it consumes lot of memory & further processing becomes difficult.
 	close(n+"Uninfected_cell.labels");
+	close(n+"Uninfected_cell.labels1");
+	close("Result of "+n+"Uninfected_cell.labels");
+	close("Result of "+n+"Uninfected_cell.labels1");
 	close("Objects map of "+n+"Uninfected_cell.labels");
 	close("Surface map of "+n+"Uninfected_cell.labels");
 	close("Centroids map of "+n+"Uninfected_cell.labels");
@@ -251,9 +255,9 @@ for(i=0;i<5;i++)
 	close("Surface map of "+n+"Uninf_Cells_BC_surface");
 	close("Centroids map of "+n+"Uninf_Cells_BC_surface");
 	close("Centres of mass map of "+n+"Uninf_Cells_BC_surface");
+	
 } 
 
 
 waitForUser("Done successfully!!");
 close("*");
-*/
