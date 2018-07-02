@@ -4,6 +4,7 @@
 ///TIPS: Before choosing the input image user should check the channel numbers for the four channels. The channel number could be changed according to the choosen image in the lines with "$" symbol where the channel number is specified.
 ///TIPS: Always close the log window before running the macro for every image.
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 //Open the image containing folder and creates the output folder. 
 filepath=File.openDialog("Select input image"); 
 image= File.getName(filepath);
