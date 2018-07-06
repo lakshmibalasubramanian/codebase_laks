@@ -10,15 +10,16 @@ library(magrittr)
 
 ```{r}
 #Declaring the basic path 
-base_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/"
-
+#base_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/"
+base_path <- "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/"
 #Generating the folder list
 folder_list <-
   c(
-    "48hpi_output",
-    "24hpi_output",
-    "33hpi_output"
+    "Ctrl2_output",
+    "Ctrl3_output",
+    "Sal3_output"
   )
+
 
 #Creating empty dataframes
 loca_inf <- list(list())
@@ -27,6 +28,9 @@ loca_pvm <- list(list())
 pvm <- list(list())
 loca_uninf <- list(list())
 uninfected <- list(list())
+m<-0
+j<-0
+k<-0
 
 
 for (m in 1:length(folder_list)){   # This is the main loop which has two timepoints folder
@@ -36,13 +40,13 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
   file_name_temp <- list.dirs(path,full.names = FALSE) 
   file_name_temp <- file_name_temp[-1]  # This is just to renumber the array number
   file_timepoint <- file_timepoint[-1]
-  #print(path)
-  #print(file_timepoint)
   
+ 
   for (j in 1:length(file_timepoint)){
     #-------------------infected---------------------------------------------------------------
     
-      print(m)
+    print(m)
+    print(file_timepoint[j])
     if (m<3){
       filenames_inf <-
        c("statistics_inf_cell.csv",
@@ -59,7 +63,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
       dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_inf[[i]]))
     }
     
-    print(dat_inf[[i]])
+    #print(dat_inf[[i]])
     names(dat_inf) <- filenames_inf
     dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_SurVox_inf <- dat_inf[grep("cell", names(dat_inf))]
@@ -74,17 +78,17 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     
     loca_inf[[j]] <- 
       cbind(
-        lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
-        lapply(dat_cell_SurVox_inf, function(x) x[[5]]) %>% as.matrix(),
-        lapply(dat_cell_SurPixel_inf, function(x) x[[3]]) %>% as.matrix(),
-        lapply(dat_cell_int_intensity_inf, function(x) x[[6]]) %>% as.matrix(),
-        lapply(dat_saBC_inf, function(x) x[[3]] %>% sum()) %>% as.matrix(),
-        lapply(dat_saBC_inf, function(x) x[[5]] %>% sum()) %>% as.matrix(),
-        lapply(dat_saBC_int_intensity_inf, function(x) x[[6]] %>% sum()) %>% as.matrix()
+        lapply(dat_cell_inf, function(x) x[[1]]) %>% as.matrix(),
+        lapply(dat_cell_SurVox_inf, function(x) x[[4]]) %>% as.matrix(),
+        lapply(dat_cell_SurPixel_inf, function(x) x[[2]]) %>% as.matrix(),
+        lapply(dat_cell_int_intensity_inf, function(x) x[[5]]) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[2]] %>% as.numeric %>% sum()) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[4]] %>% as.numeric %>% sum()) %>% as.matrix(),
+        lapply(dat_saBC_int_intensity_inf, function(x) x[[5]] %>% sum()) %>% as.matrix()
         ) %>% as.data.frame()
     
-    print(loca_inf[[j]])
-    
+    #print(loca_inf[[j]])
+     
     #--------------------PVM------------------------------------------------------------------
     # This line is to rename the statistics file for pvm since its named differently. The temperory renaming is done to maintain the same pattern in the entire code
     #file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
@@ -122,15 +126,15 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     
     loca_pvm[[j]] <- 
           cbind(
-                lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
-                lapply(dat_cell_SurVox_pvm, function(x) x[[5]]) %>% as.matrix(),
-                lapply(dat_cell_SurPixel_pvm, function(x) x[[3]]) %>% as.matrix(),
-                lapply(dat_cell_int_intensity_pvm, function(x) x[[6]]) %>% as.matrix(),
-                lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()) %>% as.matrix(), 
-                lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()) %>% as.matrix(),
-                lapply(dat_saBC_int_intensity_pvm, function(x) x[[6]] %>% as.numeric() %>% sum()) %>% as.matrix()
+                lapply(dat_cell_pvm, function(x) x[[1]]) %>% as.matrix(),
+                lapply(dat_cell_SurVox_pvm, function(x) x[[4]]) %>% as.matrix(),
+                lapply(dat_cell_SurPixel_pvm, function(x) x[[2]]) %>% as.matrix(),
+                lapply(dat_cell_int_intensity_pvm, function(x) x[[5]]) %>% as.matrix(),
+                lapply(dat_saBC_pvm, function(x) x[[2]] %>% as.numeric() %>% sum()) %>% as.matrix(), 
+                lapply(dat_saBC_pvm, function(x) x[[4]] %>% as.numeric() %>% sum()) %>% as.matrix(),
+                lapply(dat_saBC_int_intensity_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()) %>% as.matrix()
               ) %>% as.data.frame()
-    print(loca_pvm[[j]])
+    #print(loca_pvm[[j]])
     
     #--------------------uninfected cell------------------------------------------------------------------
     if (m<3){
@@ -170,13 +174,13 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
    
     loca_uninf[[j]] <- 
       cbind(
-            lapply(dat_uninf_cell, function(x) x[[2]]) %>% as.matrix(), 
-            lapply(dat_cell_SurVox_uninf, function(x) x[[5]]) %>% as.matrix(),
-            lapply(dat_cell_SurPixel_uninf, function(x) x[[3]]) %>% as.matrix(),
-            lapply(dat_cell_int_intensity_uninf, function(x) x[[6]]) %>% as.matrix(),
-            lapply(dat_uninf_saBC, function(x) x[[3]] %>% sum()) %>% as.matrix(), 
-            lapply(dat_uninf_saBC, function(x) x[[5]] %>% sum()) %>% as.matrix(),
-            lapply(dat_saBC_int_intensity_uninf, function(x) x[[6]] %>% as.numeric %>% sum()) %>% as.matrix()
+            lapply(dat_uninf_cell, function(x) x[[1]]) %>% as.matrix(), 
+            lapply(dat_cell_SurVox_uninf, function(x) x[[4]]) %>% as.matrix(),
+            lapply(dat_cell_SurPixel_uninf, function(x) x[[2]]) %>% as.matrix(),
+            lapply(dat_cell_int_intensity_uninf, function(x) x[[5]]) %>% as.matrix(),
+            lapply(dat_uninf_saBC, function(x) x[[2]] %>% as.numeric %>% sum())  %>% as.matrix(), 
+            lapply(dat_uninf_saBC, function(x) x[[4]] %>% as.numeric %>% sum()) %>% as.matrix(),
+            lapply(dat_saBC_int_intensity_uninf, function(x) x[[5]] %>% as.numeric %>% sum()) %>% as.matrix()
             ) %>% 
             as.data.frame()
     print(loca_uninf[[j]])
@@ -226,12 +230,13 @@ total_uninf <- uninfected %>% bind_rows()
 
 #Combining all the dataframes
 total_all <- rbind(total_inf,total_pvm,total_uninf)
-write.csv(total_inf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/infected_data.csv")
-write.csv(total_pvm, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/pvm_data.csv")
-write.csv(total_uninf, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/uninfected_data.csv")
+write.csv(total_inf, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/infected_data.csv")
+write.csv(total_pvm, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/pvm_data.csv")
+write.csv(total_uninf, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/uninfected_data.csv")
 
-write.csv(total_all, file = "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
+write.csv(total_all, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/master_data.csv")
 View(total_all)
+
 
 ```
 
