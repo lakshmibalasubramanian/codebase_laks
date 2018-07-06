@@ -12,27 +12,50 @@ library(ggsignif)
 ```{r}
 #Reading the csv file from the path
 #dat <- readr::read_csv("/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
-dat <- readr::read_csv("/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
-dat_new <- as.data.frame(sapply(dat,gsub,pattern="_BCPVM_results",replacement=""))
-dat_new$status <- NA
-dat_new$status[dat_new$Treatment %in% "Treated"] <- "sal_trea"
-dat_new$status[dat_new$Treatment %in% "Untreated"] <- "sal_untrea"
-dat_new$Timepoint <- "24hpi"
+dat_24 <- readr::read_csv("/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+dat_33 <- readr::read_csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/pvm_data.csv")
+dat_24 <- as.data.frame(sapply(dat_24,gsub,pattern="_BCPVM_results",replacement=""))
+dat_24$status_cell <- "PVM"
+dat_24$Timepoint <- "24hpi"
+#dat_24$status[dat_24$Treatment %in% "Treated"] <- "sal_trea"
+#dat_24$status[dat_24$Treatment %in% "Untreated"] <- "sal_untrea"
 
-col_name <- c("pvm_Vol", "Surf_Voxels", "PVM_BC_SA", "PVM_BC_SV")
+#Copying the required column to the new dataframe
+dat_33_new <- dat_33[,c(1,2,3,6,7,9,10,11)]
+
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Ctrl2",replacement="Untreated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Ctrl3",replacement="Untreated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Sal3_",replacement="Treated"))
+
+#Changing the names of the columns
+colnames(dat_33_new)[2] <- "pvm_Vol"
+colnames(dat_33_new)[3] <- "Surf_Voxels"
+colnames(dat_33_new)[4] <- "PVM_BC_SA"
+colnames(dat_33_new)[5] <- "PVM_BC_SV"
+colnames(dat_33_new)[6] <- "status_cell"
+colnames(dat_33_new)[7] <- "ImageName"
+colnames(dat_33_new)[8] <- "Treatment"
+
+dat_33_new$Timepoint <- "33hpi"
+
+#Rearranging the columns in dat_33_new; This is to combine the columns from both the dataframe
+dat_33_new <- dat_33_new[,c(1,2,3,4,5,8,7,6)]
 
 
+#Combining both the dataframe
+dat_all <- rbind(dat_24,dat_33_new)
 
-dat_new_tmp$pvm_Vol <- as.numeric(as.character(dat_new_tmp$pvm_Vol))
+
 
 #Assigning the digits for the numerics minimum should be 15 all the time.
-options(digits = 15)
+#options(digits = 15)
 
 #Below command is to convert few of the columns from character to numeric
-dat_new[col_name] <- sapply(dat_new[col_name], function(x) as.numeric(as.character(x))) 
+col_name <- c("X1","pvm_Vol","Surf_Voxels","PVM_BC_SA","PVM_BC_SV")
+dat_all[col_name] <- sapply(dat_all[col_name], function(x) as.numeric(as.character(x))) 
 
-dat_new_treat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Treated")
-dat_new_untreat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Untreated")
+#dat_new_treat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Treated")
+#dat_new_untreat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Untreated")
 
 ```
 
@@ -71,39 +94,39 @@ test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matri
 
 pval <- test_SV_BC_PVM$p.value
 
-Treatment1 <- factor(dat_new$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+Treatment1 <- factor(dat_all$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
 
-P<-ggplot2::ggplot(dat_new) +
-  ggplot2::geom_boxplot(ggplot2::aes(Treatment1, PVM_BC_SV), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = PVM_BC_SV, fill = Treatment1), colour = "red", cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment")
-   P + geom_signif(annotations = c(formatC(pval, digits = 4)), y_position = c(40), xmin = c(2.0), xmax = c(3.0))
-  ggplot2::ggsave("SA_Vox_BC_PVM1.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_PVM1.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment") +
+   #P + geom_signif(annotations = c(formatC(pval, digits = 4)), y_position = c(40), xmin = c(2.0), xmax = c(3.0))
+  ggplot2::ggsave("SA_Vox_BC_PVM.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
 
-ggplot2::ggplot(dat_new) +
-  ggplot2::geom_boxplot(ggplot2::aes(Treatment, PVM_BC_SA, fill = status), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = PVM_BC_SA, fill = status, color = status), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SA, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SA, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface area (pixels) of BC on PVM") + xlab("Salicylate treatment") +
-  ggplot2::ggsave("SA_pix_BC_PVM.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_pix_BC_PVM.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("SA_pix_BC_PVM.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_pix_BC_PVM.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
 
-ggplot2::ggplot(dat_new) +
-  ggplot2::geom_boxplot(ggplot2::aes(Treatment, pvm_Vol, fill = status), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = pvm_Vol, fill = status, color = status), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, pvm_Vol, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume of PVM (micron^3)") + xlab("Salicylate treatment") +
-  ggplot2::ggsave("Vol_PVM_sali_24.png", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("Vol_PVM_sali_24.svg", path = "/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::ggsave("Vol_PVM_sali.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_sali.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
 ```
 
 ```{r}
