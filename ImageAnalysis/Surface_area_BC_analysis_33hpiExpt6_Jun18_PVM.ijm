@@ -95,7 +95,7 @@ run("Make Binary", "method=Default background=Default");
 setThreshold(1, 255);
 //waitForUser("Threshold", "Please adjust threshold and then click OK");
 run("Multiply...", "value=255.000 stack");
-
+run("Make Binary", "method=Default background=Default");
 
 
 
@@ -112,11 +112,12 @@ saveAs("Tiff", output1+"PVM_mask_C2-dupli_image.tif");
 selectWindow("Result of C2-dupli_image-1");
 rename("C2-dupli_image-2");
 
-
+selectWindow("PVM.labels-1");
+run("Dilate", "stack");
 imageCalculator("Subtract create stack", "PVM.labels-1","C2-dupli_image-2"); //$ CD13/BC channel
 selectWindow("Result of PVM.labels-1");
 rename("Result of PVM.labels1");
-close("Result of PVM.labels");
+close("Result of PVM.labels-1");
 imageCalculator("Subtract create stack", "PVM.labels-1","Result of PVM.labels1");
 selectWindow("Result of PVM.labels-1");
 rename("PVM_BC_surface");
