@@ -140,7 +140,7 @@ run("3D Objects Counter", "threshold=" + threshold +
 //run("3D Objects Counter", "threshold=1 slice=26 min.=100 max.=55574528 objects surfaces centroids centres_of_masses statistics summary");
 //selectWindow("Statistics for PVM_BC_surface");
 saveAs("Results",output1+"statistics_PVM_surfacearea_BC.csv");
-/*
+
 //Closing all the windows that are opened during the processing of 3D object counter. If these windows are opened it consumes lot of memory & further processing becomes difficult.
 close("C1-dupli_image"); //$ UIS4/PVM channel
 close("PVM.labels");
@@ -155,8 +155,8 @@ close("Centroids map of PVM_BC_surface");
 close("Centres of mass map of PVM_BC_surface");
 close("PVM.labels-1");
 //-------------------------------------------------------------------------------------------------------------------------------------------------
-*/
-/*
+
+
 //Segmentation of infected cell using segmentation editor; Saving the obtained results file (volume of the cell, Surface area of bile canaliculi) as .csv in the output folder
 //3D median filter is to smoothen the phalloidin channel
 selectWindow("C3-dupli_image"); //$ Phalloidin channel
@@ -274,4 +274,3 @@ for(i=0;i<5;i++)
 
 waitForUser("Done successfully!!");
 close("*");
-*/
