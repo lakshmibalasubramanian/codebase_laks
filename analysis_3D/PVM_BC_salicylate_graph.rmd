@@ -36,11 +36,11 @@ colnames(dat_33_new)[6] <- "status_cell"
 colnames(dat_33_new)[7] <- "ImageName"
 colnames(dat_33_new)[8] <- "Treatment"
 
-dat_33_new$Timepoint <- "33hpi"
+
 
 #Rearranging the columns in dat_33_new; This is to combine the columns from both the dataframe
 dat_33_new <- dat_33_new[,c(1,2,3,4,5,8,7,6)]
-
+dat_33_new$Timepoint <- "33hpi"
 
 #Combining both the dataframe
 dat_all <- rbind(dat_24,dat_33_new)
@@ -98,10 +98,10 @@ Treatment1 <- factor(dat_all$Treatment, levels = c('Untreated', 'Treated'), orde
 
 
 ggplot2::ggplot(dat_all) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Salicylate treatment") +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection") +
    #P + geom_signif(annotations = c(formatC(pval, digits = 4)), y_position = c(40), xmin = c(2.0), xmax = c(3.0))
   ggplot2::ggsave("SA_Vox_BC_PVM.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
   ggplot2::ggsave("SA_Vox_BC_PVM.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
@@ -113,7 +113,7 @@ ggplot2::ggplot(dat_all) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SA, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SA, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface area (pixels) of BC on PVM") + xlab("Salicylate treatment") +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface area (pixels) of BC on PVM") + xlab("Timepoint of infection") +
   ggplot2::ggsave("SA_pix_BC_PVM.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
   ggplot2::ggsave("SA_pix_BC_PVM.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
 ```
@@ -131,5 +131,21 @@ ggplot2::ggplot(dat_all) +
 
 ```{r}
 
-test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_new_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+dat_24[col_name] <- sapply(dat_24[col_name], function(x) as.numeric(as.character(x))) 
+
+dat_24_treat <- dat_24 %>% dplyr::filter(dat_24$Treatment == "Treated")
+dat_24_untreat <- dat_24 %>% dplyr::filter(dat_24$Treatment == "Untreated")
+
+test_SV_BC_PVM_24 <- t.test(dat_24_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_24_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+test_vol_PVM_24 <- t.test(dat_24_treat %>% dplyr::select(pvm_Vol) %>% as.matrix(), dat_24_untreat %>% dplyr::select(pvm_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+dat_33_new[col_name] <- sapply(dat_33_new[col_name], function(x) as.numeric(as.character(x))) 
+
+dat_33_treat <- dat_33_new %>% dplyr::filter(dat_33_new$Treatment == "Treated")
+dat_33_untreat <- dat_33_new %>% dplyr::filter(dat_33_new$Treatment == "Untreated")
+
+test_SV_BC_PVM_33 <- t.test(dat_33_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_33_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+test_vol_PVM_33 <- t.test(dat_33_treat %>% dplyr::select(pvm_Vol) %>% as.matrix(), dat_33_untreat %>% dplyr::select(pvm_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
 ```
