@@ -47,7 +47,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     
     print(m)
     print(file_timepoint[j])
-    if (m<3){
+    if (m<=length(folder_list)){
       filenames_inf <-
        c("statistics_inf_cell.csv",
           "statistics_inf_surfacearea_BC.csv")
@@ -69,7 +69,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_cell_SurVox_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_SurPixel_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_int_intensity_inf <- dat_inf[grep("cell", names(dat_inf))]
-    if (m<3){
+    if (m<=length(folder_list)){
       dat_saBC_int_intensity_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
       dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
       dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
@@ -91,9 +91,9 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
      
     #--------------------PVM------------------------------------------------------------------
     # This line is to rename the statistics file for pvm since its named differently. The temperory renaming is done to maintain the same pattern in the entire code
-    #file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+    file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
 
-     if (m<3){
+     if (m<=length(folder_list)){
               filenames_pvm <-
                 c("statistics_PVM_cell.csv",
                   "statistics_PVM_surfacearea_BC.csv")
@@ -112,7 +112,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_cell_SurVox_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
     dat_cell_SurPixel_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
     dat_cell_int_intensity_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
-    if(m<3){
+    if(m<=length(folder_list)){
       dat_saBC_pvm <- dat_pvm[grep("PVM_surfacearea_BC", names(dat_pvm))]
       dat_saBC_int_intensity_pvm <- dat_pvm[grep("PVM_surfacearea_BC", names(dat_pvm))]
     }
@@ -137,7 +137,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     #print(loca_pvm[[j]])
     
     #--------------------uninfected cell------------------------------------------------------------------
-    if (m<3){
+    if (m<=length(folder_list)){
               filenames_uninf <- 
                  c("1statistics_uninf_cell.csv","1statistics_uninf_surfacearea_BC.csv",
                    "2statistics_uninf_cell.csv","2statistics_uninf_surfacearea_BC.csv",
@@ -165,7 +165,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
     dat_cell_SurVox_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
     dat_cell_SurPixel_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
     dat_cell_int_intensity_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
-    if (m<3){
+    if (m<=length(folder_list)){
       dat_uninf_saBC <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
       dat_saBC_int_intensity_uninf <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
       dat_uninf_saBC[is.na(dat_uninf_saBC)] <- 0
@@ -183,7 +183,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
             lapply(dat_saBC_int_intensity_uninf, function(x) x[[5]] %>% as.numeric %>% sum()) %>% as.matrix()
             ) %>% 
             as.data.frame()
-    print(loca_uninf[[j]])
+    #print(loca_uninf[[j]])
     
   }
   
