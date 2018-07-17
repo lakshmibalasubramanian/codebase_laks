@@ -40,7 +40,7 @@ run("Split Channels");
 selectWindow("C2-dupli_image"); //$ CD13/BC channel
 run("Green");
 run("Smooth", "stack");
-run("Smooth", "stack");
+//run("Smooth", "stack");
 run("Threshold...");
 wait(1000); 
 setAutoThreshold("Default dark");
@@ -160,6 +160,8 @@ close("PVM.labels-1");
 //Segmentation of infected cell using segmentation editor; Saving the obtained results file (volume of the cell, Surface area of bile canaliculi) as .csv in the output folder
 //3D median filter is to smoothen the phalloidin channel
 selectWindow("C3-dupli_image"); //$ Phalloidin channel
+run("Subtract Background...", "rolling=30 stack");
+selectWindow("C3-dupli_image");
 run("Median (3D)");
 //close("C3-dupli_image");     //$ Phalloidin channel
 selectWindow("Median of C3-dupli_image"); //$ Phalloidin channel
@@ -272,5 +274,5 @@ for(i=0;i<5;i++)
 } 
 
 
-waitForUser("Done successfully!!");
+waitForUser("Done successfully!! Keep smiling :)");
 close("*");
