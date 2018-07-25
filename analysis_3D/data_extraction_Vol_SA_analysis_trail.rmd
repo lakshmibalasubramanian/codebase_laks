@@ -17,7 +17,9 @@ folder_list <-
   c(
     "Ctrl2_output",
     "Ctrl3_output",
-    "Sal3_output"
+    "Sal3_output",
+    "Sal2_output",
+    "Sal1_output"
   )
 
 
@@ -63,7 +65,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
       dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_inf[[i]]))
     }
     
-    #print(dat_inf[[i]])
+    print(dat_inf[[i]])
     names(dat_inf) <- filenames_inf
     dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
     dat_cell_SurVox_inf <- dat_inf[grep("cell", names(dat_inf))]
@@ -84,14 +86,15 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
         lapply(dat_cell_int_intensity_inf, function(x) x[[5]]) %>% as.matrix(),
         lapply(dat_saBC_inf, function(x) x[[2]] %>% as.numeric %>% sum()) %>% as.matrix(),
         lapply(dat_saBC_inf, function(x) x[[4]] %>% as.numeric %>% sum()) %>% as.matrix(),
-        lapply(dat_saBC_int_intensity_inf, function(x) x[[5]] %>% sum()) %>% as.matrix()
+        lapply(dat_saBC_int_intensity_inf, function(x) x[[5]] %>% as.numeric() %>% sum()) %>% as.matrix()
         ) %>% as.data.frame()
-    
-    #print(loca_inf[[j]])
+   
+               
+    print(loca_inf[[j]])
      
     #--------------------PVM------------------------------------------------------------------
     # This line is to rename the statistics file for pvm since its named differently. The temperory renaming is done to maintain the same pattern in the entire code
-    file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+    #file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
 
      if (m<=length(folder_list)){
               filenames_pvm <-
@@ -134,7 +137,7 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
                 lapply(dat_saBC_pvm, function(x) x[[4]] %>% as.numeric() %>% sum()) %>% as.matrix(),
                 lapply(dat_saBC_int_intensity_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()) %>% as.matrix()
               ) %>% as.data.frame()
-    #print(loca_pvm[[j]])
+    print(loca_pvm[[j]])
     
     #--------------------uninfected cell------------------------------------------------------------------
     if (m<=length(folder_list)){
@@ -194,7 +197,9 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
   
   for (k in 1:length(file_timepoint)){
     tot_dat_inf[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
+    
     tot_dat_inf[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
+    
     tot_dat_inf[[k]]$Status <- "INF" # These are the additional columns that we are adding in the dataframes 
     tot_dat_inf[[k]]$File <- file_name_temp[k]
     #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
