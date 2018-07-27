@@ -15,14 +15,43 @@ library(gridExtra)
 
 dat <- readr::read_csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 dat_33 <- readr::read_csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/master_data.csv")
-dat_33$Timepoint_new <- "NA"
-dat_33$Timepoint_new [grep("Ctrl", dat_33$Timepoint)] <- "33hpi"
-dat_33 <- dat_33 %>% dplyr::filter(dat_33$Timepoint_new == "33hpi")  # This is just to consider only salicylate untreated sample from the experiment 6  for 33hpi
-dat_33$Timepoint <- dat_33$Timepoint_new
+colnames(dat_33)[11] <- "Treatment"
+dat_33$Timepoint <- "33hpi"
+dat_33 <- as.data.frame(sapply(dat_33,gsub,pattern="Ctrl2",replacement="Untreated"))
+dat_33 <- as.data.frame(sapply(dat_33,gsub,pattern="Ctrl3",replacement="Untreated"))
+dat_33 <- as.data.frame(sapply(dat_33,gsub,pattern="Sal3_",replacement="Treated"))
+dat_33 <- as.data.frame(sapply(dat_33,gsub,pattern="Sal2_",replacement="Treated"))
+dat_33 <- as.data.frame(sapply(dat_33,gsub,pattern="Sal1_",replacement="Treated"))
 
-dat_33 <- dat_33[,c(1,2,3,4,5,6,7,8,9,10,11)] #copy the column as same as dat dataframe (24 & 48hpi)
+dat_33_all <- dat_33
+
+#dat_33$Timepoint_new [grep("Ctrl", dat_33$Timepoint)] <- "33hpi"
+dat_33 <- dat_33 %>% dplyr::filter(dat_33$Treatment == "Untreated")  # This is just to consider only salicylate untreated sample from the experiment 6  for 33hpi
+
+
+dat_33 <- dat_33[,c(1,2,3,4,5,6,7,8,9,10,12)] #copy the column as same as dat dataframe (24 & 48hpi)
+
 
 dat$BC_SA_Vox <- dat$BC_SA_Vox/2
+
+dat_33_all$Timepoint_new <- "NA"
+dat_33_all$Timepoint_new <- "33hpi"
+colnames(dat_33_all)[11] <- "Treatment"
+dat_33_all <- as.data.frame(sapply(dat_33_all,gsub,pattern="Ctrl2",replacement="Untreated"))
+dat_33_all <- as.data.frame(sapply(dat_33_all,gsub,pattern="Ctrl3",replacement="Untreated"))
+dat_33_all <- as.data.frame(sapply(dat_33_all,gsub,pattern="Sal3_",replacement="Treated"))
+dat_33_all <- as.data.frame(sapply(dat_33_all,gsub,pattern="Sal2_",replacement="Treated"))
+dat_33_all <- as.data.frame(sapply(dat_33_all,gsub,pattern="Sal1_",replacement="Treated"))
+
+dat_24_48 <- dat
+dat_24_48 <- na.omit(dat_24_48)
+dat_24_48$Treatment <- "Untreated"
+colnames(dat_24_48)[11] <- "Timepoint_new"
+dat_33_all <- dat_33_all[,c(1,2,3,4,5,6,7,8,9,10,12,11)]
+
+dat_24_33_48 <- rbind(dat_33_all,dat_24_48)
+
+
 
 dat_all <- rbind(dat,dat_33) # combining both the dataframes
 
