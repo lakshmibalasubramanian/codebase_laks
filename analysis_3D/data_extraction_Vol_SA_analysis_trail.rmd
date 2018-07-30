@@ -13,6 +13,8 @@ library(magrittr)
 #base_path <- "/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/"
 base_path <- "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/"
 #Generating the folder list
+
+
 folder_list <-
   c(
     "Ctrl2_output",
@@ -232,6 +234,10 @@ for (m in 1:length(folder_list)){   # This is the main loop which has two timepo
 total_inf <- infected %>% bind_rows()
 total_pvm <- pvm %>% bind_rows()
 total_uninf <- uninfected %>% bind_rows()
+
+total_inf$BC_SA_Vox <- total_inf$BC_SA_Vox/2  #This division by 2 is to consider the voxel just touching the pvm/hepatocytes
+total_pvm$BC_SA_Vox <- total_pvm$BC_SA_Vox/2
+total_uninf$BC_SA_Vox <- total_uninf$BC_SA_Vox/2
 
 #Combining all the dataframes
 total_all <- rbind(total_inf,total_pvm,total_uninf)
