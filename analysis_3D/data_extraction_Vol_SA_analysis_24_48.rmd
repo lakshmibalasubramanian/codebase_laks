@@ -1,0 +1,249 @@
+```{r}
+# This script is to extract the data from the volume and SA program that is being done with all the images using the macro "Modified_SA_vol_PVM_cellSep17.ijm". This script extracts information from two timepoints (48 & 24 hpi). This script has been modified slightly to take from 33hpi output bcz we have calculated only the volume related calculation in 33hpi infection. The output generated are  four csv files such as "infected_data.csv", "pvm_data.csv", "uninfected_data.csv" & "master_data.csv"
+```
+
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+```{r}
+#Declaring the basic path 
+base_path <- "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/"
+#Generating the folder list
+
+
+folder_list <-
+  c(
+    "48hpi_output",
+    "24hpi_output"
+  )
+
+
+#Creating empty dataframes
+loca_inf <- list(list())
+infected <- list(list())
+loca_pvm <- list(list())
+pvm <- list(list())
+loca_uninf <- list(list())
+uninfected <- list(list())
+m<-0
+j<-0
+k<-0
+
+
+for (m in 1:length(folder_list)){   # This is the main loop which has two timepoints folder
+  path <- sprintf("%s%s", base_path, folder_list[m])
+  file_timepoint <- list.dirs(path)
+  # This command list only the folder names from the entire path. This is used just to get the image analysis results folder names
+  file_name_temp <- list.dirs(path,full.names = FALSE) 
+  file_name_temp <- file_name_temp[-1]  # This is just to renumber the array number
+  file_timepoint <- file_timepoint[-1]
+  
+ 
+  for (j in 1:length(file_timepoint)){
+    #-------------------infected---------------------------------------------------------------
+    
+    print(m)
+    print(file_timepoint[j])
+    if (m<=length(folder_list)){
+      filenames_inf <-
+       c("statistics_inf_cell.csv",
+          "statistics_inf_surfacearea_BC.csv")
+    } else {
+       filenames_inf <-
+       c("statistics_inf_cell.csv")
+     }
+      
+   
+    
+    dat_inf <- list()
+    for(i in 1:length(filenames_inf)){
+      dat_inf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_inf[[i]]))
+    }
+    
+    print(dat_inf[[i]])
+    names(dat_inf) <- filenames_inf
+    dat_cell_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_cell_SurVox_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_cell_SurPixel_inf <- dat_inf[grep("cell", names(dat_inf))]
+    dat_cell_int_intensity_inf <- dat_inf[grep("cell", names(dat_inf))]
+    if (m<=length(folder_list)){
+      dat_saBC_int_intensity_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+      dat_saBC_inf <- dat_inf[grep("surfacearea_BC", names(dat_inf))]
+      dat_saBC_inf[is.na(dat_saBC_inf)] <- 0
+      
+    }
+    
+    loca_inf[[j]] <- 
+      cbind(
+        lapply(dat_cell_inf, function(x) x[[2]]) %>% as.matrix(),
+        lapply(dat_cell_SurVox_inf, function(x) x[[5]]) %>% as.matrix(),
+        lapply(dat_cell_SurPixel_inf, function(x) x[[3]]) %>% as.matrix(),
+        lapply(dat_cell_int_intensity_inf, function(x) x[[6]]) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[3]] %>% as.numeric %>% sum()) %>% as.matrix(),
+        lapply(dat_saBC_inf, function(x) x[[5]] %>% as.numeric %>% sum()) %>% as.matrix(),
+        lapply(dat_saBC_int_intensity_inf, function(x) x[[6]] %>% as.numeric() %>% sum()) %>% as.matrix()
+        ) %>% as.data.frame()
+   
+               
+    print(loca_inf[[j]])
+     
+    #--------------------PVM------------------------------------------------------------------
+    # This line is to rename the statistics file for pvm since its named differently. The temperory renaming is done to maintain the same pattern in the entire code
+    #file.rename(from = file.path(file_timepoint[j], "statistics_PVM.csv"), to = file.path(file_timepoint[j], "statistics_PVM_cell.csv"))
+
+     if (m<=length(folder_list)){
+              filenames_pvm <-
+                c("statistics_PVM_cell.csv",
+                  "statistics_PVM_surfacearea_BC.csv")
+            } else{
+                    filenames_pvm <-
+                      c("statistics_PVM_cell.csv")
+                  }
+     
+    dat_pvm <- list()
+    for(i in 1:length(filenames_pvm)){
+        dat_pvm[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_pvm[[i]]))
+    }
+    names(dat_pvm) <- filenames_pvm
+
+    dat_cell_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
+    dat_cell_SurVox_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
+    dat_cell_SurPixel_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
+    dat_cell_int_intensity_pvm <- dat_pvm[grep("PVM_cell", names(dat_pvm))]
+    if(m<=length(folder_list)){
+      dat_saBC_pvm <- dat_pvm[grep("PVM_surfacearea_BC", names(dat_pvm))]
+      dat_saBC_int_intensity_pvm <- dat_pvm[grep("PVM_surfacearea_BC", names(dat_pvm))]
+    }
+    
+    
+    if (dat_saBC_pvm %>% as.data.frame() %>% nrow() == 0) {
+        dat_saBC_pvm[[1]][1,] <- 0 
+        dat_saBC_pvm[[1]] <- plyr::colwise(as.numeric)(dat_saBC_pvm[[1]])
+    }
+    
+    
+    loca_pvm[[j]] <- 
+          cbind(
+                lapply(dat_cell_pvm, function(x) x[[2]]) %>% as.matrix(),
+                lapply(dat_cell_SurVox_pvm, function(x) x[[5]]) %>% as.matrix(),
+                lapply(dat_cell_SurPixel_pvm, function(x) x[[3]]) %>% as.matrix(),
+                lapply(dat_cell_int_intensity_pvm, function(x) x[[6]]) %>% as.matrix(),
+                lapply(dat_saBC_pvm, function(x) x[[3]] %>% as.numeric() %>% sum()) %>% as.matrix(), 
+                lapply(dat_saBC_pvm, function(x) x[[5]] %>% as.numeric() %>% sum()) %>% as.matrix(),
+                lapply(dat_saBC_int_intensity_pvm, function(x) x[[6]] %>% as.numeric() %>% sum()) %>% as.matrix()
+              ) %>% as.data.frame()
+    print(loca_pvm[[j]])
+    
+    #--------------------uninfected cell------------------------------------------------------------------
+    if (m<=length(folder_list)){
+              filenames_uninf <- 
+                 c("1statistics_uninf_cell.csv","1statistics_uninf_surfacearea_BC.csv",
+                   "2statistics_uninf_cell.csv","2statistics_uninf_surfacearea_BC.csv",
+                  "3statistics_uninf_cell.csv","3statistics_uninf_surfacearea_BC.csv",
+                  "4statistics_uninf_cell.csv","4statistics_uninf_surfacearea_BC.csv",
+                  "5statistics_uninf_cell.csv","5statistics_uninf_surfacearea_BC.csv")
+            } else{
+                    filenames_uninf <- 
+                     c("1statistics_uninf_cell.csv",
+                       "2statistics_uninf_cell.csv",
+                       "3statistics_uninf_cell.csv",
+                       "4statistics_uninf_cell.csv",
+                       "5statistics_uninf_cell.csv")
+                  }
+    
+    
+    
+    dat_uninf <- list()
+    for(i in 1:length(filenames_uninf)) {
+        dat_uninf[[i]] <- readr::read_csv(sprintf("%s/%s", file_timepoint[j], filenames_uninf[[i]]))
+      }
+    names(dat_uninf) <- filenames_uninf
+    
+    dat_uninf_cell <- dat_uninf[grep("cell", names(dat_uninf))]
+    dat_cell_SurVox_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
+    dat_cell_SurPixel_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
+    dat_cell_int_intensity_uninf <- dat_uninf[grep("cell", names(dat_uninf))]
+    if (m<=length(folder_list)){
+      dat_uninf_saBC <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
+      dat_saBC_int_intensity_uninf <- dat_uninf[grep("surfacearea_BC", names(dat_uninf))]
+      dat_uninf_saBC[is.na(dat_uninf_saBC)] <- 0
+    }
+    
+   
+    loca_uninf[[j]] <- 
+      cbind(
+            lapply(dat_uninf_cell, function(x) x[[2]]) %>% as.matrix(), 
+            lapply(dat_cell_SurVox_uninf, function(x) x[[5]]) %>% as.matrix(),
+            lapply(dat_cell_SurPixel_uninf, function(x) x[[3]]) %>% as.matrix(),
+            lapply(dat_cell_int_intensity_uninf, function(x) x[[6]]) %>% as.matrix(),
+            lapply(dat_uninf_saBC, function(x) x[[3]] %>% as.numeric %>% sum())  %>% as.matrix(), 
+            lapply(dat_uninf_saBC, function(x) x[[5]] %>% as.numeric %>% sum()) %>% as.matrix(),
+            lapply(dat_saBC_int_intensity_uninf, function(x) x[[6]] %>% as.numeric %>% sum()) %>% as.matrix()
+            ) %>% 
+            as.data.frame()
+    #print(loca_uninf[[j]])
+    
+  }
+  
+  #Declaring empty dataframes outside the loops
+  tot_dat_inf <- list(list())
+  tot_dat_pvm <- list(list())
+  tot_dat_uninf <- list(list())
+  
+  for (k in 1:length(file_timepoint)){
+    tot_dat_inf[[k]] <- rbind(loca_inf[[k]]) %>% as.data.frame()
+    
+    tot_dat_inf[[k]] <- plyr::colwise(as.numeric)(loca_inf[[k]])
+    
+    tot_dat_inf[[k]]$Status <- "INF" # These are the additional columns that we are adding in the dataframes 
+    tot_dat_inf[[k]]$File <- file_name_temp[k]
+    #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
+    tot_dat_inf[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5) 
+    colnames(tot_dat_inf[[k]]) <- c("Cell_Vol", "Cell_Surf_Vox","cell_Surf_Pix", "cell_int_intensity", "BC_SA_Pix", "BC_SA_Vox", "BC_int_intensity", "Status","File Name","Timepoint")
+    
+    tot_dat_pvm[[k]] <- rbind(loca_pvm[[k]]) %>% as.data.frame()
+    tot_dat_pvm[[k]] <- plyr::colwise(as.numeric)(loca_pvm[[k]])
+    tot_dat_pvm[[k]]$Status <- "PVM" # These are the additional columns that we are adding in the dataframes
+    tot_dat_pvm[[k]]$File <- file_name_temp[k]
+    #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
+    tot_dat_pvm[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5)
+    colnames(tot_dat_pvm[[k]]) <- c("Cell_Vol", "Cell_Surf_Vox","cell_Surf_Pix", "cell_int_intensity", "BC_SA_Pix", "BC_SA_Vox", "BC_int_intensity", "Status","File Name","Timepoint")
+    
+    tot_dat_uninf[[k]] <- rbind(loca_uninf[[k]]) %>% as.data.frame()
+    tot_dat_uninf[[k]] <- plyr::colwise(as.numeric)(loca_uninf[[k]])
+    tot_dat_uninf[[k]]$Status <- "UNINF" # These are the additional columns that we are adding in the dataframes
+    tot_dat_uninf[[k]]$File <- file_name_temp[k]
+    #This substr command to take only few characters from the variable (only "48hpi" from "48hpi_output")
+    tot_dat_uninf[[k]]$Timepoint <- substr(folder_list[m],start = 1, stop = 5) 
+    colnames(tot_dat_uninf[[k]]) <- c("Cell_Vol", "Cell_Surf_Vox","cell_Surf_Pix", "cell_int_intensity", "BC_SA_Pix", "BC_SA_Vox", "BC_int_intensity", "Status","File Name","Timepoint")
+   }
+  
+  infected[[m]] <- tot_dat_inf %>% bind_rows()
+  pvm[[m]] <- tot_dat_pvm %>% bind_rows()
+  uninfected[[m]] <- tot_dat_uninf %>% bind_rows()
+  
+}
+#These are the dataframes for each infected, pvm & uninfected data separately
+total_inf <- infected %>% bind_rows()
+total_pvm <- pvm %>% bind_rows()
+total_uninf <- uninfected %>% bind_rows()
+
+total_inf$BC_SA_Vox <- total_inf$BC_SA_Vox/2  #This division by 2 is to consider the voxel just touching the pvm/hepatocytes
+total_pvm$BC_SA_Vox <- total_pvm$BC_SA_Vox/2
+total_uninf$BC_SA_Vox <- total_uninf$BC_SA_Vox/2
+
+#Combining all the dataframes
+total_all <- rbind(total_inf,total_pvm,total_uninf)
+write.csv(total_inf, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/infected_data.csv")
+write.csv(total_pvm, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/pvm_data.csv")
+write.csv(total_uninf, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/uninfected_data.csv")
+
+write.csv(total_all, file = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
+View(total_all)
+
+
+```
+
