@@ -98,14 +98,17 @@ pval <- test_SV_BC_PVM$p.value
 
 Treatment1 <- factor(dat_all$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
+P <- scale_color_manual(dat_all$Treatment,values = c("Dark green", "hotpink3"))
+
 
 ggplot2::ggplot(dat_all) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
-  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection") + 
-   ggplot2::ggsave("SA_Vox_BC_PVM.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_PVM.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=13, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.6,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection (Salicylate treatement)") +
+  ggplot2::ggsave("SA_Vox_BC_PVM_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 5, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 5, height = 5, units = "in", dpi = 300)
 ```
 
 ```{r}
@@ -121,13 +124,18 @@ ggplot2::ggplot(dat_all) +
 
 ```{r}
 
+
+
 ggplot2::ggplot(dat_all) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, pvm_Vol, fill = Treatment1), outlier.color = NA, alpha = 0.2, width = 0.5, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, fill = Treatment1, color = Treatment1), cex = 2.0, alpha = 1.0, position = position_jitterdodge(0.2,0.2,0.7)) + 
-  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) + ylab("Volume of PVM (micron^3)") + xlab("Salicylate treatment") +
-  ggplot2::ggsave("Vol_PVM_sali.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("Vol_PVM_sali.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 8, height = 8, units = "in", dpi = 300)
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, pvm_Vol, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=13, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.2,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection (Salicylate treatment)") +
+  ggplot2::ggsave("Vol_PVM_sali_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 5, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_sali_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/", width = 5, height = 5, units = "in", dpi = 300)
+
+
 ```
 
 ```{r}
