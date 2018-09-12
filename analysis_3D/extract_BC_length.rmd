@@ -11,11 +11,12 @@ library(magrittr)
 
 ```{r}
 #Declaring the base path
-base_path <- "/media/lab-admin/Lakshmi/BC_length_calculation"
+base_path <- "/media/lab-admin/9F72-D571/Lakshmi_working_data_new/BC_length_calculation"
 
 folder_list <- 
   c(
-    "Results_CSU_33hpi_ctrl"
+    "Results_CSU_33hpi_ctrl",
+    "Results_CSU_33hpi_sal" 
     )
 
 m<-0
@@ -41,7 +42,7 @@ for (m in 1:length(folder_list)){
     
     dat_BC_length[i] <- 
       cbind(
-        lapply(dat, function(x) x[[2]] %>% as.numeric %>% sum()/50) %>% as.matrix()
+        lapply(dat, function(x) x[[2]] %>% as.numeric %>% sum()/45) %>% as.matrix()
       ) %>% as.data.frame()
     
     print(dat_BC_length[i])
@@ -56,7 +57,7 @@ for (m in 1:length(folder_list)){
 }
  #total_dat[[m]] <- tot_BC_length %>% bind_rows()
  dat_all <- total_dat %>% bind_rows() %>% as.matrix()
- write.csv(dat_all, file = "/media/lab-admin/Lakshmi/BC_length_calculation/data_BC_length1.csv")
+ write.csv(dat_all, file = "/media/lab-admin/9F72-D571/Lakshmi_working_data_new/BC_length_calculation/data_BC__CSU_33hpi.csv")
  #write.csv(dat_final, file = "/media/lab-admin/Lakshmi/BC_length_calculation/data_BC_length.csv")
 
  View(dat_all)
@@ -64,16 +65,18 @@ for (m in 1:length(folder_list)){
 ```
 
 ```{r}
-dat_new <- readr::read_csv("/media/lab-admin/Lakshmi/BC_length_calculation/data_BC_length.csv")
+dat_new <- readr::read_csv("/media/lab-admin/9F72-D571/Lakshmi_working_data_new/BC_length_calculation/data_BC_CSU_33hpi.csv")
 
+Treatment1 <- factor(dat_new$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+P <- scale_color_manual(dat_new$BC_length,values = c("Turquoise4", "Red"))
 ggplot2::ggplot(dat_new) +
-  ggplot2::geom_boxplot(ggplot2::aes(Treatment, BC_length, fill = Treatment), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = BC_length, color = Treatment), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment1, BC_length, fill = Treatment), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = BC_length, color = Treatment), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.4,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Length of Bile Canaliculi (micron)") + xlab("Salicylate treatment") 
-  ggplot2::ggsave("volume_inf_hepatocyte_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_inf_hepatocyte_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.8,0.95), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 4), panel.border = element_blank(), axis.line = element_line()) + ylab("Length of Bile Canaliculi (micron)") + xlab("Salicylate treatment (33hpi)") +
+  ggplot2::ggsave("length_BC_CSU.png", path = "/media/lab-admin/9F72-D571/Lakshmi_working_data_new/BC_length_calculation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("length_BC_CSU.svg", path = "/media/lab-admin/9F72-D571/Lakshmi_working_data_new/BC_length_calculation/", width = 4, height = 5, units = "in", dpi = 300)
 ```
 
 
