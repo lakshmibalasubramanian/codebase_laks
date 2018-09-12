@@ -1,0 +1,82 @@
+```{r}
+# This script is to combine all the log.csv (log.txt) obtained from tubeness calculation for Bile canaliculai for salicylate experiment for 33hpi. All the data are combined to form a single master csv file (Output: master_data_33hpi.csv )
+```
+
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+
+#Declaring the path
+data_path <- "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Tubeness_polarity_33hpi/"
+
+# Creating the list
+folder_list <- 
+  c(
+    "Ctrl2_tubeness_output",
+    "Ctrl3_tubeness_output",
+    "Sal1_tubeness_output",
+    "Sal2_tubeness_output",
+    "Sal3_tubeness_output"
+    )
+```
+
+```{r}
+#Empty dataframe
+parameters <- list(list())
+dat_full <- list(list())
+dat_33hpi <- list(list())
+total_par <- list(list())
+dat_33hpi_temp <- list(list())
+total_par <- list(list())
+m<-0
+k<-0
+comm_file <- "/PVM_mask_C2-dupli_image.tif_result"
+
+for (m in 1:length(folder_list)){
+  file_images <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = TRUE, recursive = FALSE)
+  file_images_temp <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = FALSE, recursive = FALSE)
+ 
+  print(m)
+  print(file_images)
+ 
+  for (k in 1:length(file_images)){
+    file_image_new <- sprintf("%s%s",file_images[k],comm_file)
+    print(k)
+    print(file_image_new)
+    parameters[[k]] <-
+              read.delim(sprintf("%s/log.csv", file_image_new), header = FALSE) %>%
+              select(-V1,-V3) %>%  #This -V1/-V3 will deselect the first & third row
+              t() %>%              # This t is do the transpose of the matrix
+              as.data.frame()
+   
+  }
+  
+  
+ for (l in 1:length(file_images)){
+   total_par[[l]] <- rbind(parameters[[l]]) %>% as.data.frame()
+   #Assigning the column names in the dataframe append_parameters
+   colnames(total_par[[l]]) <- c(
+                                 "Totallength",
+                                "Numberofbranches",
+                                "Averagebranchlength",
+                                "TotalBCvolume",
+                                "MeanBC(tube)diameter",
+                                "MeanBC(tube)cross-section",
+                                "Totalimagedvolume",
+                                "VolumefractionoccupiedbyBC"
+                                )
+   #Adding additional columns for image file names
+   total_par[[l]]$File <- file_images_temp[l]
+   
+ }
+ 
+ dat_33hpi_temp[[m]] <- total_par %>% bind_rows()
+ 
+}
+
+dat_33hpi <- dat_33hpi_temp %>% bind_rows()
+#Writing to seperate csv in the specified path
+write.csv(dat_33hpi, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Tubeness_polarity_33hpi/master_data_33hpi.csv") 
+View(dat_33hpi)
+```
