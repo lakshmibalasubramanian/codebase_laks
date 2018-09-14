@@ -37,12 +37,10 @@ for (m in 1:length(folder_list)){
   file_images <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = TRUE, recursive = FALSE)
   file_images_temp <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = FALSE, recursive = FALSE)
  
-  print(m)
-  print(file_images)
+  #print(file_images)
  
   for (k in 1:length(file_images)){
     file_image_new <- sprintf("%s%s",file_images[k],comm_file)
-    print(k)
     print(file_image_new)
     parameters[[k]] <-
               read.delim(sprintf("%s/log.csv", file_image_new), header = FALSE) %>%
@@ -68,6 +66,17 @@ for (m in 1:length(folder_list)){
                                 )
    #Adding additional columns for image file names
    total_par[[l]]$File <- file_images_temp[l]
+   total_par[[l]]$Timepoint <- "33hpi"
+   
+   
+   #This is to check for the pattern in the variable. "grepl" returns the logical output i.e TRUE or FALSE
+   if (grepl("sal", file_images_temp[l])){
+     total_par[[l]]$Treatment <- "Treated"
+   } else if (grepl("crt", file_images_temp[l])){    
+     total_par[[l]]$Treatment <- "Untreated"
+   } else if (grepl("ctr", file_images_temp[l])){
+     total_par[[l]]$Treatment <- "Untreated"
+   }
    
  }
  
