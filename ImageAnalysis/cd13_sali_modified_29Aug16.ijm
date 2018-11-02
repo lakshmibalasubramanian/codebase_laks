@@ -27,7 +27,7 @@ run("Duplicate...", "title=CD13_dupli_sali.tif duplicate");
 //close();
 //selectWindow("C1-dupli_sali.tif"); //$CD13 channel
 selectWindow("CD13_dupli_sali.tif"); //$CD13 channel
-run("Smooth", "stack");
+//run("Smooth", "stack");
 
 ///Getting the pixel size of the image///
 getPixelSize(unit,px,py,pz);
