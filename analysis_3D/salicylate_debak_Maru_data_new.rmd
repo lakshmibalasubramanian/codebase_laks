@@ -12,13 +12,13 @@ library(gridExtra)
 #Reading the data file
 
 #This is data from 24hpi & analysis done by Debakshi
-dat_deb <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
+dat_deb <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/Salicylate_Exp2.csv")
 
 dat_deb$Timepoint <- NA
 dat_deb$Timepoint[grep("2",dat_deb$Name)] <- "24hpi"
 
 #This is data from 48hpi & analysis done by Maruthi (salicylate treated)
-dat_maruthi_sal <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
+dat_maruthi_sal <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/salicylate_maruthi_48hpi.csv")
 
 dat_maruthi_sal$Timpoint <-NA
 dat_maruthi_sal$Timpoint <- "48hpi"
@@ -26,7 +26,7 @@ dat_maruthi_sal$Status <- NA
 dat_maruthi_sal$Status <- "Treated"
 
 #This is data from 48hpi & analysis done by Maruthi (salicylate untreated)
-dat_maruthi_ctrl <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
+dat_maruthi_ctrl <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Maruthi_data/Debakshi_salicylate_expt2_data/control_maruthi_48hpi.csv")
 
 dat_maruthi_ctrl$Timepoint <- NA
 dat_maruthi_ctrl$Timepoint <- "48hpi"
@@ -65,7 +65,7 @@ col <- colnames(dat_maruthi_ctrl)
 colnames(dat_deb_temp) <- col
 
 #This is data from 33hpi & analysis done by Lakshmi
-dat_33_laks <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Tubeness_polarity_33hpi/master_data_33hpi_1.csv")
+dat_33_laks <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Tubeness_polarity_33hpi/master_data_33hpi_1.csv")
 dat_33_laks <- dat_33_laks[,c(2,3,4,5,6,7,8,9,11,12)]
 colnames(dat_33_laks) <- col #Renaming the column names
 
@@ -118,6 +118,19 @@ write.csv(dat_24hpi_tubeness, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_
 write.csv(dat_33hpi_tubeness, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/dat_master_tubeness_global_33hpi.csv")
 write.csv(dat_48hpi_tubeness, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/dat_master_tubeness_global_48hpi.csv")
 ```
+
+
+```{r}
+tes_24_tube <- t.test(dat_24hpi_tubeness %>% dplyr::filter(dat_24hpi_tubeness$Status=="Treated") %>% dplyr::select(Total_length_normalised) %>% as.matrix(), dat_24hpi_tubeness %>% dplyr::filter(dat_24hpi_tubeness$Status=="Untreated") %>% dplyr::select(Total_length_normalised) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_33_tube <- t.test(dat_33hpi_tubeness %>% dplyr::filter(dat_33hpi_tubeness$Status=="Treated") %>% dplyr::select(Total_length_normalised) %>% as.matrix(), dat_33hpi_tubeness %>% dplyr::filter(dat_33hpi_tubeness$Status=="Untreated") %>% dplyr::select(Total_length_normalised) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_48_tube <- t.test(dat_48hpi_tubeness %>% dplyr::filter(dat_48hpi_tubeness$Status=="Treated") %>% dplyr::select(Total_length_normalised) %>% as.matrix(), dat_48hpi_tubeness %>% dplyr::filter(dat_48hpi_tubeness$Status=="Untreated") %>% dplyr::select(Total_length_normalised) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+
+```
+
 
 ```{r}
 Status1 <- factor(dat_master_all$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
