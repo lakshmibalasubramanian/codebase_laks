@@ -1,0 +1,16 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+```
+
+```{r}
+dat <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/Tabish_Lakshmi_comparison1.csv")
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_histogram(ggplot2::aes(x = Image, y = Branches, color = Status), stat = "identity")
+```
