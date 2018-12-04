@@ -12,13 +12,13 @@ library(grid)
 library(gridExtra)
 
 #Declaring the path
-data_path <- "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/"
+data_path <- "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_48/"
 
 # Creating the list
 folder_list <- 
   c(
-    "24_ctrl_network_BL",
-    "24_treated_network_BL"
+    "48_ctrl_network_BL",
+    "48_treated_network_BL"
    )
 ```
 
@@ -66,14 +66,14 @@ for (m in 1:length(folder_list)){
                                 )
    #Adding additional columns for image file names
    total_par[[l]]$File <- file_images_temp[l]
-   total_par[[l]]$Timepoint <- "24hpi"
+   total_par[[l]]$Timepoint <- "48hpi"
    
    
    #This is to check for the pattern in the variable. "grepl" returns the logical output i.e TRUE or FALSE
-   if (grepl("sal", file_images_temp[l])){
-     total_par[[l]]$Treatment <- "Treated"
-   } else {    
+   if (grepl("CTRL", file_images_temp[l])){
      total_par[[l]]$Treatment <- "Untreated"
+   } else {    
+     total_par[[l]]$Treatment <- "Treated"
    } 
    
  }
@@ -84,14 +84,17 @@ for (m in 1:length(folder_list)){
 
 dat_24hpi <- dat_24hpi_temp %>% bind_rows()
 #Writing to seperate csv in the specified path
-write.csv(dat_24hpi, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/tabish_data_24hpi.csv") 
+write.csv(dat_24hpi, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_48hpi.csv") 
 View(dat_24hpi)
 ```
 
 
 ```{r}
 #plotting the graph for the above generated data
-dat_tabish <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/tabish_data_24hpi.csv")
+dat_tabish_24 <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_24hpi.csv")
+dat_tabish_48 <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_48hpi.csv")
+
+dat_tabish <- rbind(dat_tabish_24,dat_tabish_48)
 
 Treatment1 <- factor(dat_tabish$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
@@ -103,8 +106,8 @@ ggplot2::ggplot(dat_tabish) +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
-ggplot2::ggsave("branches_24_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("branches_24_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+ggplot2::ggsave("branches_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
 
 
 ggplot2::ggplot(dat_tabish) +
@@ -113,8 +116,8 @@ ggplot2::ggplot(dat_tabish) +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
-ggplot2::ggsave("Totallength_24_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("Totallength_24_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_24/Analysis_24hpi_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+ggplot2::ggsave("Totallength_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Totallength_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
 
 
 tes_24_tabish <- t.test(dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Treated") %>% dplyr::select(Totallength) %>% as.matrix(), dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Untreated") %>% dplyr::select(Totallength) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
