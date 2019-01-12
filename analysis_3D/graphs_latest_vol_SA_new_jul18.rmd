@@ -13,10 +13,10 @@ library(gridExtra)
 #dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 
-dat <- readr::read_csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
+dat <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
 #dat$BC_SA_Vox <- dat$BC_SA_Vox/2 #This division by 2 is to consider the voxel just touching the pvm/hepatocytes
 
-dat_33 <- readr::read_csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_vol/master_data.csv")
+dat_33 <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_vol/master_data.csv")
 #dat_33$BC_SA_Vox <- dat_33$BC_SA_Vox*2
 colnames(dat_33)[11] <- "Treatment"
 dat_33$Timepoint <- "33hpi"
@@ -86,7 +86,9 @@ dat_inf_PVM <- cbind(dat_infec,dat_PVM) # This is get the infected cell & its co
 dat_inf_PVM["Ratio_Vol_CELL_PVM"] <- 0
 
 # Computing values for new column and adding to it
-dat_inf_PVM$Ratio_Vol_CELL_PVM <- dat_inf_PVM$Cell_Vol.1/dat_inf_PVM$Cell_Vol
+dat_inf_PVM$Ratio_Vol_CELL_PVM <- round(dat_inf_PVM$Cell_Vol.1/dat_inf_PVM$Cell_Vol,4)
+
+dat_inf_PVM_24 <- dat_inf_PVM %>% dplyr::filter(dat_inf_PVM$Timepoint == "24hpi")
 
 
 ```
@@ -146,14 +148,17 @@ ggplot2::ggplot(dat_PVM) +
 ```{r}
 #Plot for ratio between the pvm and cell volume (Untreated)
 
+scaleFun <- function(x) sprintf("%.2f",x)
+
+
 ggplot2::ggplot(dat_inf_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "red", cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Fraction of PVM in hepatocyte") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Fraction of PVM in hepatocyte") + xlab("Timepoint of infection") + scale_y_continuous(labels = scaleFun, limits = c(0.00,1.2)) +
+  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
