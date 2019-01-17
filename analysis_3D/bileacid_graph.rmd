@@ -10,7 +10,8 @@ library(gridExtra)
 
 ```{r}
 #Reading the file
-dat <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/Bileacids_graph.csv")
+dat <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/Bileacids_graph.csv")
+
 
 Treatment1 <- factor(dat$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 
@@ -25,3 +26,29 @@ ggplot2::ggplot(dat) +
   ggplot2::ggsave("bileacids.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
   ggplot2::ggsave("bileacids.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
 ```
+
+```{r}
+dat_untreat <- dat %>% dplyr::filter(dat$Treatment == "Untreated")
+
+Status1 <- factor(dat_untreat$Status, levels = c('Uninfected', 'Infected'), ordered = TRUE)
+
+ggplot2::ggplot(dat_untreat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Gall_bladder_BA), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Gall_bladder_BA, color = Treatment), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Bile acid level (mmol/litre)\n(Gall bladder)") + xlab("Infection") +
+  ggplot2::ggsave("bileacids_gallbladder.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("bileacids_gallbladder.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+ggplot2::ggplot(dat_untreat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Serum_BA), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Serum_BA, color = Treatment), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Bile acid level (mmol/litre)\n(Serum)") + xlab("Infection") +
+  ggplot2::ggsave("bileacids_serum.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("bileacids_serum.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
