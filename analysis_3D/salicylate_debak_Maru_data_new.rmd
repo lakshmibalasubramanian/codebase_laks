@@ -142,8 +142,8 @@ ggplot2::ggplot(dat_master_all) +
   ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Branches, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("branches_all.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection")
+ +                                                                                         ggplot2::ggsave("branches_all.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300) +
   ggplot2::ggsave("branches_all.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300)
 
 #----------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ ggplot2::ggplot(dat_master_all) +
   ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Total_length, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") 
   ggplot2::ggsave("Totallength_all.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300) +
   ggplot2::ggsave("Totallength_all.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300)
 
@@ -458,4 +458,21 @@ ggplot2::ggplot(dat_24) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.5), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Imaged volume(x1000 micron^3)") + xlab("Timepoint of infection") +
   ggplot2::ggsave("imagedvol_sali_24.png", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300) +
   ggplot2::ggsave("imagedvol_sali_24.svg", path = "/Volumes/VS_lab_disk/Maruthi_data/Debakshi_salicylate_expt2_data", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+Status1 <- factor(dat_24hpi_tubeness$Status, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat_24hpi_tubeness$Status, values = c("#006600", "#CC0099"))
+
+ggplot2::ggplot(dat_24hpi_tubeness) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timpoint,Total_length, fill = Status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timpoint, y = Total_length, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1500,3500)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("Totallength_24_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Totallength_24_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Tubeness_BC_global/Analysis_sep18/Graphs", width = 4, height = 5, units = "in", dpi = 300)
+
 ```

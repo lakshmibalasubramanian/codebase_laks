@@ -13,10 +13,10 @@ library(gridExtra)
 #dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
 
-dat <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
+dat <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
 #dat$BC_SA_Vox <- dat$BC_SA_Vox/2 #This division by 2 is to consider the voxel just touching the pvm/hepatocytes
 
-dat_33 <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_vol/master_data.csv")
+dat_33 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_vol/master_data.csv")
 #dat_33$BC_SA_Vox <- dat_33$BC_SA_Vox*2
 colnames(dat_33)[11] <- "Treatment"
 dat_33$Timepoint <- "33hpi"
@@ -139,8 +139,8 @@ ggplot2::ggplot(dat_PVM) +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Volume of the PVM (micron^3)") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("volume_PVM_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_PVM_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("volume_PVM_jul18_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_PVM_jul18_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
@@ -186,12 +186,13 @@ ggplot2::ggplot(dat_inf_uninf) +
 ```{r}
 #Plot for integrated intensity of BC on hepatocytes (Untreated)
 ggplot2::ggplot(dat_PVM) +
-  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, BC_SA_Vox), outlier.color = NA, size = 1.0, alpha = 0.0, width = 0.4, position = position_dodge(width = 0.7), varwidth = F, notch = F) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, fill = Status), colour = "red", cex = 2.0, alpha = 0.7, position = position_jitterdodge(0.2,0.2,0.7)) + 
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, BC_SA_Vox), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, fill = Status), colour = "red",cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none") + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("BC_PVM_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 8, height = 8, units = "in", dpi = 300) +
-  ggplot2::ggsave("BC_PVM_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 8, height = 8, units = "in", dpi = 300)
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("BC_PVM_jul18_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("BC_PVM_jul18_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 

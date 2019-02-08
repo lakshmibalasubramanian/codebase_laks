@@ -12,8 +12,8 @@ library(ggsignif)
 ```{r}
 #Reading the csv file from the path
 #dat <- readr::read_csv("/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
-dat_24 <- readr::read_csv("/home/lab-admin/LAKSHMI/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
-dat_33 <- readr::read_csv("/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/pvm_data1.csv")
+dat_24 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+dat_33 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/pvm_data1.csv")
 dat_24 <- as.data.frame(sapply(dat_24,gsub,pattern="_BCPVM_results",replacement=""))
 dat_24$status_cell <- "PVM"
 dat_24$Timepoint <- "24hpi"
@@ -131,9 +131,10 @@ ggplot2::ggplot(dat_all) +
   ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
   scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1,3500)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection \n (Salicylate treatment)") +
-  ggplot2::ggsave("Vol_PVM_sali_new.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("Vol_PVM_sali_new.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("Vol_PVM_sali_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_sali_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 
 ```
