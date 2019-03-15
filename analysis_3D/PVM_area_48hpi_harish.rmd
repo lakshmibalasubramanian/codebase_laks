@@ -1,0 +1,53 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+library(ggsignif)
+```
+
+```{r}
+#Reading the csv file from the path
+
+dat_48 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Data_from_Harish/data_point_lakshmi.csv")
+
+
+```
+
+
+```{r}
+
+Treatment1 <- factor(dat_48$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat_48$Treatment,values = c("#006600", "#CC0099"))
+
+ggplot2::ggplot(dat_48) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Area_pvm, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Area_pvm, color = Treatment1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, colour = "black")) + P +
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1,1500)) +
+  theme(axis.title = element_text(size=15), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Area of PVM (micron^2)") + xlab("Timepoint of infection (h)") +
+  ggplot2::ggsave("Area_PVM_48hpi_sali_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Data_from_Harish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Area_PVM_48hpi_sali_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Data_from_Harish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+```
+
+```{r}
+#Computing the t-test
+
+test_area_PVM_48 <- t.test(
+  dat_48 %>% dplyr::filter(dat_48$Treatment == "Treated") %>% dplyr::select(Area_pvm) %>% as.matrix(),
+  dat_48 %>% dplyr::filter(dat_48$Treatment == "Untreated") %>% dplyr::select(Area_pvm) %>% as.matrix(),
+  alternative = c("two.sided"),
+  paired = FALSE,
+  var.equal = FALSE,
+  conf.level = 0.95)
+
+test_area_PVM_48
+
+```

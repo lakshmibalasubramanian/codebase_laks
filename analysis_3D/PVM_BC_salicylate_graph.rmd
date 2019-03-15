@@ -103,12 +103,12 @@ P <- scale_color_manual(dat_all$Treatment,values = c("#006600", "#CC0099"))
 
 ggplot2::ggplot(dat_all) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, color = Treatment1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.2,0.2,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection \n (Salicylate treatement)") +
-  ggplot2::ggsave("SA_Vox_BC_PVM_new.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_PVM_new.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("SA_Vox_BC_PVM_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 ```
 
 ```{r}
@@ -128,13 +128,13 @@ ggplot2::ggplot(dat_all) +
 
 ggplot2::ggplot(dat_all) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, pvm_Vol, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, color = Treatment1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
   scale_x_discrete(expand=c(0,0)) +
   scale_y_continuous(limits = c(1,3500)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection \n (Salicylate treatment)") +
-  ggplot2::ggsave("Vol_PVM_sali_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("Vol_PVM_sali_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("Vol_PVM_sali_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_sali_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 
 ```

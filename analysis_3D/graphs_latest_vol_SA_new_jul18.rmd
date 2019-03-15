@@ -36,8 +36,6 @@ dat_33 <- dat_33[,c(1,2,3,4,5,6,7,8,9,10,12)] #copy the column as same as dat da
 
 
 
-
-
 dat_24_48 <- dat
 dat_24_48 <- na.omit(dat_24_48)
 dat_24_48$Treatment <- "Untreated"
@@ -65,7 +63,8 @@ dat_24_33_48_cells$Status_Treat <- paste(dat_24_33_48_cells$Status, dat_24_33_48
 dat_24_33_48_cells <- dat_24_33_48_cells %>% dplyr::filter(dat_24_33_48_cells$Timepoint == "33hpi") #only for 33hpi
 
 
-
+dat_33[col_name] <- sapply(dat_33[col_name], function(x) as.numeric(as.character(x)))
+dat_33$BC_SA_Vox <- dat_33$BC_SA_Vox*4
 
 #This is the dataframe of all the three timepoints without salicylate treatment (Only infection)
 dat_all <- rbind(dat,dat_33) # combining both the dataframes
@@ -73,6 +72,7 @@ dat_all <- rbind(dat,dat_33) # combining both the dataframes
 dat_all_new <- na.omit(dat_all) # This is just to remove the rows with NAs. In this case it removed the old 33hpi data which do not have SA on Hepatocyte/PVM
 
 dat_all_new[col_name] <- sapply(dat_all_new[col_name], function(x) as.numeric(as.character(x)))
+
 
 dat_uninf <- dat_all_new %>% dplyr::filter(dat_all_new$Status == "UNINF")
 dat_infec <- dat_all_new %>% dplyr::filter(dat_all_new$Status == "INF")
@@ -98,18 +98,18 @@ dat_inf_PVM_24 <- dat_inf_PVM %>% dplyr::filter(dat_inf_PVM$Timepoint == "24hpi"
 Status1 <- factor(dat_inf_uninf$Status, levels = c('UNINF','INF'), ordered = TRUE)
 
 #This is to change the color of the jitter points of user's choice
-P <- scale_color_manual(dat_inf_uninf$Status,values = c("Turquoise4", "Red"))
+P <- scale_color_manual(dat_inf_uninf$Status,values = c("blue", "Red"))
 
 #Plot for volume of the infected hepatocytes (24,33,48 hpi) (Untreated)
 
 ggplot2::ggplot(dat_inf_uninf) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, color = Status1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + P + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.4,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Volume of infected hepatocytes (micron^3)") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("volume_inf_hepatocyte_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_inf_hepatocyte_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("volume_inf_hepatocyte_jul18_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_inf_hepatocyte_jul18_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
   
   
 test1 = 0.000567  
@@ -135,12 +135,12 @@ ggplot2::ggplot(dat_inf_uninf) +
 
 ggplot2::ggplot(dat_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Cell_Vol, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, fill = Status), colour = "red", cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Cell_Vol, fill = Status), colour = "red", alpha= 0.4, cex = 2.5,  shape= 20, position = position_jitterdodge(0.5,0.5,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Volume of the PVM (micron^3)") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("volume_PVM_jul18_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_PVM_jul18_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("volume_PVM_jul18_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_PVM_jul18_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
@@ -153,12 +153,12 @@ scaleFun <- function(x) sprintf("%.2f",x)
 
 ggplot2::ggplot(dat_inf_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, Ratio_Vol_CELL_PVM, fill = Status), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "red", cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Ratio_Vol_CELL_PVM, fill = Status), colour = "red", cex = 2.5,  alpha = 0.4, shape = 20, position = position_jitterdodge(0.2,0.2,1.0)) +
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Fraction of PVM in hepatocyte") + xlab("Timepoint of infection") + scale_y_continuous(labels = scaleFun, limits = c(0.00,1.2)) +
-  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_new.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Fraction of PVM in hepatocyte") + xlab("Timepoint of infection") + scale_y_continuous(labels = scaleFun, limits = c(0.00,1.25)) +
+  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("volume_ratio_cell_PVM_jul18_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
@@ -167,18 +167,19 @@ ggplot2::ggplot(dat_inf_PVM) +
 Status1 <- factor(dat_inf_uninf$Status, levels = c('UNINF','INF'), ordered = TRUE)
 
 #This is to change the color of the jitter points of user's choice
-P <- scale_color_manual(dat_inf_uninf$Status,values = c("Turquoise4", "Red"))
+P <- scale_color_manual(dat_inf_uninf$Status,values = c("blue", "Red"))
 
 #Plot for SA (voxels) of BC on hepatocytes (Untreated)
 
 ggplot2::ggplot(dat_inf_uninf) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, BC_SA_Vox, fill = Status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, color = Status1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + P + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.4,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Timepoint of infection")
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_new.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_new.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  scale_y_continuous(breaks = seq(0,12000,3000)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = c(0.4,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 1.0), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
@@ -187,12 +188,12 @@ ggplot2::ggplot(dat_inf_uninf) +
 #Plot for integrated intensity of BC on hepatocytes (Untreated)
 ggplot2::ggplot(dat_PVM) +
   ggplot2::geom_boxplot(ggplot2::aes(Timepoint, BC_SA_Vox), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, fill = Status), colour = "red",cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = BC_SA_Vox, fill = Status), colour = "red",cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("BC_PVM_jul18_new.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("BC_PVM_jul18_new.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("BC_PVM_jul18_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("BC_PVM_jul18_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 ```
 
@@ -224,11 +225,11 @@ dat_33_PVM <- dat_inf_PVM %>% dplyr::filter(dat_inf_PVM$Timepoint == "33hpi")
 
 tes_vol_inf_uninf_48 <- t.test(dat_48_inf %>% dplyr::select(Cell_Vol) %>% as.matrix(), dat_48_uninf %>% dplyr::select(Cell_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
-tes_BC_inf_uninf_24 <- t.test(dat_24_inf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), dat_24_uninf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+tes_BC_inf_uninf_24 <- t.test(dat_24_inf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), dat_24_uninf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
-tes_BC_inf_uninf_33 <- t.test(dat_33_inf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), dat_33_uninf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+tes_BC_inf_uninf_33 <- t.test(dat_33_inf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), dat_33_uninf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
-tes_BC_inf_uninf_48 <- t.test(dat_48_inf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), dat_48_uninf %>% dplyr::select(cell_Surf_Pix) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+tes_BC_inf_uninf_48 <- t.test(dat_48_inf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), dat_48_uninf %>% dplyr::select(BC_SA_Vox) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
 tes_BC_PVM_24_33 <- t.test(dat_24_PVM %>% dplyr::select(Ratio_Vol_CELL_PVM) %>% as.matrix(), dat_33_PVM %>% dplyr::select(Ratio_Vol_CELL_PVM) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
 
@@ -243,7 +244,7 @@ tes_BC_PVM_24_48 <- t.test(dat_24_PVM %>% dplyr::select(Ratio_Vol_CELL_PVM) %>% 
 Treatment1 <- factor(dat_24_33_48_cells$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
 Status1 <- factor(dat_24_33_48_cells$Status, levels = c('UNINF', 'INF'), ordered = TRUE)
 #This is to change the color of the jitter points of user's choice
-P <- scale_color_manual(dat_24_33_48_cells$Status,values = c("Turquoise4", "Red"))
+P <- scale_color_manual(dat_24_33_48_cells$Status,values = c("blue", "Red"))
 
 #Plot for volume of the infected hepatocytes (24,33,48 hpi) (Salicylate treated and untreated; inf & uninfected)
 
@@ -259,12 +260,12 @@ ggplot2::ggplot(dat_24_33_48_cells) +
 #Plot for SV of BC on hepatocytes (24,33,48 hpi) (Salicylate treated and untreated; inf & uninfected)
 ggplot2::ggplot(dat_24_33_48_cells) +
   ggplot2::geom_boxplot(ggplot2::aes(Treatment1, BC_SA_Vox, fill = Status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = BC_SA_Vox, color = Status1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
-  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + facet_grid(~Timepoint) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment1, y = BC_SA_Vox, color = Status1), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0)) + P + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
   scale_x_discrete(expand=c(0,0)) +
   theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.2,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 4), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_sali.png", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_sali.svg", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/Images_Zstack/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_sali_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hepatocyte_jul18_sali_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
 
 
 ```

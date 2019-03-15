@@ -81,13 +81,13 @@ dat_all_flow_pvm_treated <- dat_all_flow_pvm %>% dplyr::filter(dat_all_flow_pvm$
 
 ggplot2::ggplot(dat_all_flow_pvm_ctrl) +
   ggplot2::geom_boxplot(ggplot2::aes(x= Timepoint, y= Volume_PVM_micron3, fill = Treatment), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
-  ggplot2::geom_jitter(ggplot2::aes(x= Timepoint, y = Volume_PVM_micron3, fill = Treatment), colour = "red", cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::geom_jitter(ggplot2::aes(x= Timepoint, y = Volume_PVM_micron3, fill = Treatment), colour = "red", cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.5,0.5,1.0)) + 
   ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
   scale_x_discrete(expand=c(0,0)) +
   scale_y_continuous(limits = c(1000,500000))+
-  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection") +
-  ggplot2::ggsave("Vol_PVM_flow.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height = 5, units = "in", dpi = 300) +
-  ggplot2::ggsave("Vol_PVM_flow.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height = 5, units = "in", dpi = 300)
+  theme(axis.title = element_text(size=13, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("Vol_PVM_flow_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_flow_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height =5, units = "in", dpi = 300)
 
 ```
 
