@@ -1,4 +1,4 @@
-//This macro is to split the channels and save them seperately. This is a batch process.
+//This macro is to split the channels and save them seperately;This is a batch process.
 //User has to choose the input folder with the list of images to be split. Also choose the output folder to save the images.
  
 setBatchMode(true);
@@ -22,3 +22,4 @@ for (i=0; i<list.length; i++){
 	close();
 	run("Close All");
 }
+
