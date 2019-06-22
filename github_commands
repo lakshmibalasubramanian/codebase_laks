@@ -1,0 +1,8 @@
+
+These are the commands to use in github in terminal
+#>git status
+#>git add Python_codes/trail.py
+#>git commit -m "trial changes" Python_codes/trail.py
+#>git push -u origin master
+	Username for 'https://github.com': lakshmibalasubramanian
+	Password for 'https://lakshmibalasubramanian@github.com': 
