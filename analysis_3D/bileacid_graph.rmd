@@ -1,0 +1,72 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+```
+
+```{r}
+#Reading the file
+dat_gall <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/Bileacids_graph_Gallbladder.csv")
+
+dat_serum <- readr::read_csv("/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/Bileacids_graph_serum.csv")
+
+dat_gall_untreat <- dat_gall %>% dplyr::filter(dat_gall$Treatment == "Untreated")
+dat_serum_untreat <- dat_serum %>% dplyr::filter(dat_serum$Treatment == "Untreated")
+
+
+Treatment1 <- factor(dat$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat$Treatment, values = c("#006600", "#CC0099"))
+
+ggplot2::ggplot(dat_gall) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status, Bileacids_level, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status, y = Bileacids_level, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Bile acid level (mmol/litre)\n(Gall bladder)") + xlab("Infection") +
+  ggplot2::ggsave("bileacids.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("bileacids.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+
+
+Status1 <- factor(dat_gall_untreat$Status, levels = c('Uninfected', 'Infected'), ordered = TRUE)
+
+#P <- scale_color_manual(dat_gall_untreat$Experiment, values = c("#006600", "#CC0099"))
+
+P <- scale_color_manual(dat_gall_untreat$Experiment, values = c("black", "black"))
+
+ggplot2::ggplot(dat_gall_untreat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Gall_bladder_BA), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Gall_bladder_BA, color = "black"), cex = 2.5, alpha = 0.8, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Bile acid level (mmol/L)\n(Gall bladder)") + xlab("Infection") +
+  ggplot2::ggsave("bileacids_gallbladder_new.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("bileacids_gallbladder_new.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
+
+#P <- scale_color_manual(dat_serum_untreat$Experiment, values = c("#006600", "#CC0099"))
+Status1 <- factor(dat_serum_untreat$Status, levels = c('Uninfected', 'Infected'), ordered = TRUE)
+
+
+ggplot2::ggplot(dat_serum_untreat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Status1, Serum_BA), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Status1, y = Serum_BA, color = "grey"), cex = 2.5, alpha = 0.8, position = position_jitterdodge(0.2,0.2,0.8)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Bile acid level (umol/L)\n(Serum)") + xlab("Infection") +
+  ggplot2::ggsave("bileacids_serum_new.png", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("bileacids_serum_new.svg", path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/Liver_stage_BC_association_project/Bile_acid_expt_graphs/", width = 4, height = 5, units = "in", dpi = 300)
+
+test_BA_serum <- t.test(dat_serum_untreat %>% dplyr::filter(dat_serum_untreat$Status=="Uninfected") %>% dplyr::select(Serum_BA) %>% as.matrix(), 
+                        dat_serum_untreat %>% dplyr::filter(dat_serum_untreat$Status=="Infected") %>% dplyr::select(Serum_BA) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+test_BA_gallbladder <- t.test(dat_gall_untreat %>% dplyr::filter(dat_gall_untreat$Status=="Uninfected") %>% dplyr::select(Gall_bladder_BA) %>% as.matrix(), 
+                        dat_gall_untreat %>% dplyr::filter(dat_gall_untreat$Status=="Infected") %>% dplyr::select(Gall_bladder_BA) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+```
+

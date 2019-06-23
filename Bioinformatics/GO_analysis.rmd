@@ -1,0 +1,54 @@
+<<<<<<< HEAD
+//Try this
+```{r}
+#source("https://bioconductor.org/biocLite.R")
+#biocLite()
+#biocLite("GenomicFeatures")
+#biocLite("AnnotationDbi")
+#biocLite("KEGGREST")
+
+library(dplyr)
+library(magrittr)
+library(AnnotationDbi)
+library(KEGGREST)
+library(curl)
+
+```
+
+```{r}
+listDatabases()
+#kegg_ids <- c(
+#  "hsa:652",
+#  "hsa:81",
+#  "hsa:1514",
+# "hsa:6921",
+#  "hsa:10163"
+#)
+dat <- readr::read_csv("/Volumes/VS_lab_disk/Lakshmi_working_data/GO_analysis/geneid_KEGGid.csv")
+View(dat)
+gene_id <- dat[[1]]
+kegg_id <- dat[[3]]
+
+for (m in 1:length(gene_id)){
+  print(kegg_id[m])
+  pathway <- keggGet(kegg_id[m])
+  print(pathway[[1]]$PATHWAY)
+}
+
+```
+=======
+//Ins
+```{r}
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("GenomicFeatures", "AnnotationDbi"))
+biocLite("KEGGREST")
+biocLite("GenomicFeatures")
+
+
+
+library(KEGGREST)
+library(AnnotationDbi)
+library()
+```
+>>>>>>> origin/master

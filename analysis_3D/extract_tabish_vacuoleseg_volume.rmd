@@ -1,0 +1,96 @@
+```{r}
+# This script is to extract PVM volume data that is been computed for Flowbased segmentation (Results from Tabish)
+
+```
+
+``` {r}
+#Declaring the libraries
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+```
+
+```{r}
+# Creating the function to create the list of files (csv) in a given path and read the csv and further write in a dataframe
+
+CompileCsvdata <- function(PathtoFile){
+  file_list <- list.files(path = PathtoFile, pattern = "*.csv")
+  data <- do.call("rbind",
+                lapply(file_list,
+                       function(x)
+                         read.csv(paste(PathtoFile,x,sep = ''), stringsAsFactors = FALSE))
+                )
+  data <- as.data.frame(data[,c(2)])
+  colnames(data)[1] <- "Volume_PVM(pixels)"
+  
+  #Split the string containing the path & take the last part of it.
+  P<- strsplit(PathtoFile,"/",fixed = TRUE) %>%sapply( tail,1) 
+
+  # From the splitted segment use another strsplit using a different delimiter and take the required timepoint & treatment and add them in the appropriate columns
+  data$Timepoint <- strsplit(P,"_") %>% sapply( "[", 1)
+  data$Treatment <- strsplit(P,"_") %>% sapply( "[", 2)
+  return(data)
+
+}
+
+```
+
+```{r}
+
+#Declaring the paths
+
+dat_24_ctrl_path<-"/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/24V_smooth/24V_ctrl_smooth_output/"
+dat_24_treated_path<-"/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/24V_smooth/24V_treated_smooth_output/"
+
+dat_33_ctrl_path <- "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/33V/33V_ctrl_output/"
+dat_33_treated_path <- "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/33V/33V_treated_output/"
+
+dat_48_ctrl_path <- "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/48v_output/"
+
+dat_24_ctrl_temp <- CompileCsvdata(dat_24_ctrl_path)
+dat_24_ctrl_temp$Volume_PVM_micron3 <- dat_24_ctrl_temp$Volume_PVM/3.2012 # This number is the conversion factor for the pixel to micron
+dat_24_treated_temp <- CompileCsvdata(dat_24_treated_path)
+dat_24_treated_temp$Volume_PVM_micron3 <- dat_24_treated_temp$Volume_PVM/3.2012  # This number is the conversion factor for the pixel to micron
+
+dat_33_ctrl_temp <- CompileCsvdata(dat_33_ctrl_path)
+dat_33_ctrl_temp$Volume_PVM_micron3 <- dat_33_ctrl_temp$Volume_PVM/2.0007  # This number is the conversion factor for the pixel to micron
+dat_33_treated_temp <- CompileCsvdata(dat_33_treated_path)
+dat_33_treated_temp$Volume_PVM_micron3 <- dat_33_treated_temp$Volume_PVM/2.0007  # This number is the conversion factor for the pixel to micron
+
+dat_48_ctrl_temp <- CompileCsvdata(dat_48_ctrl_path)
+dat_48_ctrl_temp$Volume_PVM_micron3 <- NA
+
+dat_all_flow_volume_pvm <- rbind(dat_24_ctrl_temp,dat_24_treated_temp,dat_33_ctrl_temp,dat_33_treated_temp,dat_48_ctrl_temp)
+
+write.csv(dat_all_flow_volume_pvm, file =
+            "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM/master_PVM_volume_flow.csv")
+
+```
+
+```{r}
+#Plotting the graph for the data points that are been generated from above chunks i.e. for the PVM volume that are computed using Flow based segmentation method (Tabish)
+
+dat_all_flow_pvm <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM/master_PVM_volume_flow_temp.csv")
+#dat_all_flow_pvm <- as.numeric(dat_all_flow_pvm)
+
+dat_all_flow_pvm_ctrl <- dat_all_flow_pvm %>% dplyr::filter(dat_all_flow_pvm$Treatment=="ctrl")
+dat_all_flow_pvm_treated <- dat_all_flow_pvm %>% dplyr::filter(dat_all_flow_pvm$Treatment=="treated")
+
+ggplot2::ggplot(dat_all_flow_pvm_ctrl) +
+  ggplot2::geom_boxplot(ggplot2::aes(x= Timepoint, y= Volume_PVM_micron3, fill = Treatment), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(x= Timepoint, y = Volume_PVM_micron3, fill = Treatment), colour = "red", cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.5,0.5,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1000,500000))+
+  theme(axis.title = element_text(size=13, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("Vol_PVM_flow_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_flow_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tabish_PVM", width = 4, height =5, units = "in", dpi = 300)
+
+```
+
+
+
+

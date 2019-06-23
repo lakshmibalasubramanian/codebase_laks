@@ -1,0 +1,161 @@
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+library(ggsignif)
+```
+
+```{r}
+#Reading the csv file from the path
+#dat <- readr::read_csv("/Volumes/VS_lab_disk/Lakshmi_working_data/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+dat_24 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Salicylate_BConPVM_analysis/Analysis_PVM_BC/pvm_BC.csv")
+dat_33 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/pvm_data1.csv")
+dat_24 <- as.data.frame(sapply(dat_24,gsub,pattern="_BCPVM_results",replacement=""))
+dat_24$status_cell <- "PVM"
+dat_24$Timepoint <- "24hpi"
+#dat_24$status[dat_24$Treatment %in% "Treated"] <- "sal_trea"
+#dat_24$status[dat_24$Treatment %in% "Untreated"] <- "sal_untrea"
+
+#Copying the required column to the new dataframe
+dat_33_new <- dat_33[,c(1,2,3,6,7,9,10,11)]
+
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Ctrl2",replacement="Untreated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Ctrl3",replacement="Untreated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Sal3_",replacement="Treated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Sal2_",replacement="Treated"))
+dat_33_new <- as.data.frame(sapply(dat_33_new,gsub,pattern="Sal1_",replacement="Treated"))
+
+#Changing the names of the columns
+colnames(dat_33_new)[2] <- "pvm_Vol"
+colnames(dat_33_new)[3] <- "Surf_Voxels"
+colnames(dat_33_new)[4] <- "PVM_BC_SA"
+colnames(dat_33_new)[5] <- "PVM_BC_SV"
+colnames(dat_33_new)[6] <- "status_cell"
+colnames(dat_33_new)[7] <- "ImageName"
+colnames(dat_33_new)[8] <- "Treatment"
+
+
+
+#Rearranging the columns in dat_33_new; This is to combine the columns from both the dataframe
+dat_33_new <- dat_33_new[,c(1,2,3,4,5,8,7,6)]
+dat_33_new$Timepoint <- "33hpi"
+
+#Combining both the dataframe
+dat_all <- rbind(dat_24,dat_33_new)
+
+
+
+#Assigning the digits for the numerics minimum should be 15 all the time.
+#options(digits = 15)
+
+#Below command is to convert few of the columns from character to numeric
+col_name <- c("X1","pvm_Vol","Surf_Voxels","PVM_BC_SA","PVM_BC_SV")
+dat_all[col_name] <- sapply(dat_all[col_name], function(x) as.numeric(as.character(x))) 
+
+#dat_new_treat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Treated")
+#dat_new_untreat <- dat_new %>% dplyr::filter(dat_new$Treatment == "Untreated")
+
+```
+
+```{r}
+test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_new_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+asterisk = ""
+
+if (test_SV_BC_PVM$p.value < 0.001) {
+  asterisk = "***"
+} else if (test_SV_BC_PVM$p.value < 0.01){
+  asterisk = "**"
+} else if (test_SV_BC_PVM$p.value < 0.05){
+  asterisk = "*"
+} else if (test_SV_BC_PVM$p.value < 0.1){
+  asterisk = "."
+} else if (test_SV_BC_PVM$p.value > 0.1){
+  asterisk = "ns"
+}
+
+Significance <- function(x){
+  symnum(x, corr = FALSE, na = FALSE, legend = FALSE,
+           cutpoints = c(0, 0.001, 0.01, 0.05, 0.1), 
+           symbols = if (numeric.x) c("***", "**", "*", ".")
+                      else c("ns"))
+}
+
+Significance(0.3)
+```
+
+
+```{r}
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+
+test_SV_BC_PVM <- t.test(dat_new_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_new_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+pval <- test_SV_BC_PVM$p.value
+
+Treatment1 <- factor(dat_all$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat_all$Treatment,values = c("#006600", "#CC0099"))
+
+
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SV, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SV, color = Treatment1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Timepoint of infection \n (Salicylate treatement)") +
+  ggplot2::ggsave("SA_Vox_BC_PVM_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_PVM_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, PVM_BC_SA, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = PVM_BC_SA, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Surface area (pixels) of BC on PVM") + xlab("Timepoint of infection") +
+  ggplot2::ggsave("SA_pix_BC_PVM.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_pix_BC_PVM.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+
+
+
+ggplot2::ggplot(dat_all) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint, pvm_Vol, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = pvm_Vol, color = Treatment1), cex = 2.5, alpha = 0.4, shape = 20, position = position_jitterdodge(0.3,0.3,1.0)) + 
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + P +
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1,3500)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.6), legend.text = element_text(size = 5), axis.line = element_line()) + ylab("Volume of PVM (micron^3)") + xlab("Timepoint of infection \n (Salicylate treatment)") +
+  ggplot2::ggsave("Vol_PVM_sali_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Vol_PVM_sali_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+```
+
+```{r}
+
+dat_24[col_name] <- sapply(dat_24[col_name], function(x) as.numeric(as.character(x))) 
+
+dat_24_treat <- dat_24 %>% dplyr::filter(dat_24$Treatment == "Treated")
+dat_24_untreat <- dat_24 %>% dplyr::filter(dat_24$Treatment == "Untreated")
+
+test_SV_BC_PVM_24 <- t.test(dat_24_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_24_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+test_vol_PVM_24 <- t.test(dat_24_treat %>% dplyr::select(pvm_Vol) %>% as.matrix(), dat_24_untreat %>% dplyr::select(pvm_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+dat_33_new[col_name] <- sapply(dat_33_new[col_name], function(x) as.numeric(as.character(x))) 
+
+dat_33_treat <- dat_33_new %>% dplyr::filter(dat_33_new$Treatment == "Treated")
+dat_33_untreat <- dat_33_new %>% dplyr::filter(dat_33_new$Treatment == "Untreated")
+
+test_SV_BC_PVM_33 <- t.test(dat_33_treat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), dat_33_untreat %>% dplyr::select(PVM_BC_SV) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+test_vol_PVM_33 <- t.test(dat_33_treat %>% dplyr::select(pvm_Vol) %>% as.matrix(), dat_33_untreat %>% dplyr::select(pvm_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+```

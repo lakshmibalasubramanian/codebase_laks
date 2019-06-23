@@ -1,0 +1,125 @@
+##Installing required packages
+```{r}
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("affy", "limma")) ##Packages required for microarray analysis
+```
+
+##Loading packages
+```{r}
+library(magrittr)
+library(affy)
+library(limma)
+library(gplots)
+```
+
+##Reading the microarray data from the file/folder
+```{r}
+##If you use Affymetrix chips your microarray data will consist of a series of CEL files containing raw intensities for each probe on the array. Save all CEL files you want to analyze in a single directory. They may be gzipped (*.gz) - you do not need to gunzip them
+celfilepath = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/430B"
+
+##Import all the CEL files by a single command using the ReadAffy() method. ReadAffy will read all CEL files in the folder and load them into an AffyBatch object in R
+#Reading cel files
+data <- ReadAffy(celfile.path = celfilepath)
+
+target <- readTargets("list_cel_430B.txt", path = "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/")
+
+```
+
+##Robust multi-array average (RMA) and extract the expression data and saving the expression data to a file
+```{r}
+# converts an AffyBatch object into an ExpressionSet object 
+data_rma = rma(data, normalize = TRUE)
+
+#Prepare expression matrix
+exp <- data_rma@assayData$exprs
+
+#Transfering the expression data to the desired folder
+write.table(data_rma, "/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430B/normalised_RMA.eset")
+
+exp %>% as.data.frame() %>% write.csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430B/expression_data.csv")
+
+```
+
+## To access the genes differentially expressed between late infection and early infection
+
+### first the variability of the data was assessed by fitting a linear model which modelled the systematic part of the data.
+
+```{r, eval=TRUE, echo=TRUE}
+d <- model.matrix(~ 0 + factor(target$file))
+colnames(d) <- levels(factor(target$file))
+fit.rma <- lmFit(data_rma, d)
+hmcols <- colorRampPalette(c("red", "white", "blue"))(n=256) ##color palette for Heatmap
+```
+
+```{r, eval=TRUE, echo=TRUE}
+#cont.mat <- makeContrasts(A1A_10_11_clo1 = "A1A_10_11_clone1-A1A_21_emptyvector",
+ #                         A1A_3_10_clo2 = "A1A_3_10_clone2-A1A_21_emptyvector",
+  #                        A2A_10_11_clo1 = "A2A_10_11_clone1-A2A_21_emptyvector",
+   #                       A2A_3_10_clo2 = "A2A_3_10_clone2-A2A_21_emptyvector",
+    #                      levels=d)
+
+cont.mat <- makeContrasts(B_10_11_clo1 = "B_10_11_clone1-B_21_emptyvector",
+                          B_3_10_clo2 = "B_3_10_clone2-B_21_emptyvector",
+                          levels=d)
+
+fit.1.rma <- contrasts.fit(fit.rma,
+                           cont.mat)
+```
+
+
+### Then the differential expression was calculated by empirical Bayes shrinkage which moderated the standard deviations between genes.
+
+```{r, eval=TRUE, echo=TRUE}
+fit.1.rma <- eBayes(fit.1.rma)
+```
+
+### To assess significance and differential expression (DE), so that the expected false discovery rate is less than 5%.
+```{r, eval=TRUE, echo=TRUE}
+#Methods are the corrections made to the p-value. Basically a factor is multiplied to P-values. There are different methods in which this can be done. "fdr" seems to robust method to control the false discovery rate. 
+selection_pvalue <- p.adjust(fit.1.rma$p.value[,2], method = "fdr") < 0.05   
+
+dat_sel <- fit.1.rma[selection_pvalue, ]
+
+results <- decideTests(fit.1.rma, method = "separate", adjust.method = "fdr", p.value = 0.05, lfc = 1) #lfc is log fold change should be 1
+
+```
+
+### Extract a table of the top-ranked genes from a linear model fit
+```{r, eval=TRUE, echo=TRUE}
+results_top <- topTable(fit.1.rma, coef = 2, adjust.method = "fdr", p.value = 0.05, lfc = 1, number = 10000)  #topTable give the list of differentially expressed genes. "number" is that to give that many number of entries from the toptable list.
+
+```
+
+### Selecting/Extracting only up or down regulating genes
+```{r, eval=TRUE, echo=TRUE}
+genes_up <- rownames(fit.1.rma)[results[,2] == 1]       #list of upregulating genes
+genes_down <- rownames(fit.1.rma)[results[,2] == -1]    #list of down regulating genes
+genes_diff <- rownames(fit.1.rma)[results[,2] != 0]     #list of genes differently expressed
+
+#Copying up/down regulated genes
+as.data.frame(genes_up) %>% write.csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430B/genes_upregulated.csv")
+as.data.frame(genes_down) %>% write.csv("/media/lab-admin/VS_lab_disk/Lakshmi_working_data/microarray_data_varadha/output_430B/genes_downregulated.csv")
+```
+
+### The Venn Diagram
+```{r, eval=TRUE, echo=TRUE}
+vennDiagram(results)
+vennDiagram(results,c("up", "down"),
+            counts.col=c("red", "blue"),
+            circle.col = c("red", "blue"))
+```
+### The HeatMap of top-ranked genes
+
+```{r, eval=TRUE, echo=TRUE}
+
+gplots::heatmap.2(dat_sel$coefficients,
+                  key=TRUE,
+                  density.info="none",
+                  trace="none",
+                  cexCol = 0.7,
+                  col=hmcols,
+                  scale="none")
+
+```
+

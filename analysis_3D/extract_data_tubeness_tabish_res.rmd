@@ -1,0 +1,210 @@
+```{r}
+# This script is to combine all the log.csv (log.txt) obtained from tubeness calculation for Bile canaliculai for salicylate experiment for 24hpi from tabish results. All the data are combined to form a single master csv file (Output: master_data_tabish_24hpi.csv )
+#Graph is also in the same script below
+```
+
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(svglite)
+library(grid)
+library(gridExtra)
+
+#Declaring the path
+data_path <- "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Tubeness_BC_48/"
+
+# Creating the list
+folder_list <- 
+  c(
+    "48_ctrl_network_BL",
+    "48_treated_network_BL"
+   )
+```
+
+```{r}
+#Empty dataframe
+parameters <- list(list())
+dat_full <- list(list())
+dat_24hpi <- list(list())
+total_par <- list(list())
+dat_24hpi_temp <- list(list())
+total_par <- list(list())
+m<-0
+k<-0
+
+for (m in 1:length(folder_list)){
+  file_images <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = TRUE, recursive = FALSE)
+  file_images_temp <- list.dirs(sprintf("%s%s",data_path,folder_list[m]),full.names = FALSE, recursive = FALSE)
+ 
+    print(file_images)
+ 
+  for (k in 1:length(file_images)){
+    file_image_new <- sprintf("%s",file_images[k])
+    print(file_image_new)
+    parameters[[k]] <-
+              read.delim(sprintf("%s/log.csv", file_image_new), header = FALSE) %>%
+              select(-V1,-V3) %>%  #This -V1/-V3 will deselect the first & third row
+              t() %>%              # This t is do the transpose of the matrix
+              as.data.frame()
+   
+  }
+  
+  
+ for (l in 1:length(file_images)){
+   total_par[[l]] <- rbind(parameters[[l]]) %>% as.data.frame()
+   #Assigning the column names in the dataframe append_parameters
+   colnames(total_par[[l]]) <- c(
+                                 "Totallength",
+                                "Numberofbranches",
+                                "Averagebranchlength",
+                                "TotalBCvolume",
+                                "MeanBC(tube)diameter",
+                                "MeanBC(tube)cross-section",
+                                "Totalimagedvolume",
+                                "VolumefractionoccupiedbyBC"
+                                )
+   #Adding additional columns for image file names
+   total_par[[l]]$File <- file_images_temp[l]
+   total_par[[l]]$Timepoint <- "48hpi"
+   
+   
+   #This is to check for the pattern in the variable. "grepl" returns the logical output i.e TRUE or FALSE
+   if (grepl("CTRL", file_images_temp[l])){
+     total_par[[l]]$Treatment <- "Untreated"
+   } else {    
+     total_par[[l]]$Treatment <- "Treated"
+   } 
+   
+ }
+ 
+ dat_24hpi_temp[[m]] <- total_par %>% bind_rows()
+ 
+}
+
+dat_24hpi <- dat_24hpi_temp %>% bind_rows()
+#Writing to seperate csv in the specified path
+write.csv(dat_24hpi, file = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_48hpi.csv") 
+View(dat_24hpi)
+```
+
+
+```{r}
+#plotting the graph for the above generated data
+dat_tabish_24 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_24hpi.csv")
+dat_tabish_24_temp <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_24hpi_temp.csv")
+dat_tabish_48 <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/tabish_data_48hpi.csv")
+
+dat_tabish <- rbind(dat_tabish_24,dat_tabish_48)
+
+Treatment1 <- factor(dat_tabish$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P <- scale_color_manual(dat_tabish$Treatment, values = c("#006600", "#CC0099"))
+
+ggplot2::ggplot(dat_tabish) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,Numberofbranches, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Numberofbranches, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Number of branches (BC)") + xlab("Timepoint of infection") +
+ggplot2::ggsave("branches_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("branches_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+ggplot2::ggplot(dat_tabish) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,Totallength, fill = Treatment1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Totallength, color = Treatment1), cex = 2.5, alpha = 0.7, position = position_jitterdodge(0.2,0.2,1.0))  + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+ggplot2::ggsave("Totallength_tabish.png", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Totallength_tabish.svg", path = "/media/lab-admin/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+tes_24_tabish <- t.test(dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Treated") %>% dplyr::select(Totallength) %>% as.matrix(), dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Untreated") %>% dplyr::select(Totallength) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_24_tabish_branches <- t.test(dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Treated") %>% dplyr::select(Numberofbranches) %>% as.matrix(), dat_tabish %>% dplyr::filter(dat_tabish$Treatment=="Untreated") %>% dplyr::select(Numberofbranches) %>% as.matrix() , alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+Treatment_tmp <- factor(dat_tabish_24_temp$Treatment, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+P1 <- scale_color_manual(dat_tabish_24_temp$Treatment, values = c("#006600", "#CC0099"))
+
+ggplot2::ggplot(dat_tabish_24_temp) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,Totallength, fill = Treatment_tmp), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Totallength, color = Treatment_tmp), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0))  + P1 +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1500,3500))+
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total length of BC (micron)") + xlab("Timepoint of infection") +
+ggplot2::ggsave("Totallength_tabish_24_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Totallength_tabish_24_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+
+
+ggplot2::ggplot(dat_tabish_24_temp) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,Numberofbranches, fill = Treatment_tmp), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = Numberofbranches, color = Treatment_tmp), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0))  + P1 +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(150,400))+
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("# of branch points") + xlab("Timepoint of infection") +
+ggplot2::ggsave("Branches_tabish_24_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Branches_tabish_24_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+
+ggplot2::ggplot(dat_tabish_24_temp) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,TotalBCvolume, fill = Treatment_tmp), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = TotalBCvolume, color = Treatment_tmp), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0))  + P1 +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(2000,10000))+
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Total BC volume um3") + xlab("Timepoint of infection") +
+ggplot2::ggsave("BCvolume_tabish_24_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("BCvolume_tabish_24_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+ggplot2::ggplot(dat_tabish_24_temp) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,`MeanBC(tube)diameter`, fill = Treatment_tmp), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = `MeanBC(tube)diameter`, color = Treatment_tmp), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0))  + P1 +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1,2.5))+
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Mean Diameter of BC (um)") + xlab("Timepoint of infection") +
+ggplot2::ggsave("BCdiameter_tabish_24_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("BCdiameter_tabish_24_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+
+ggplot2::ggplot(dat_tabish_24_temp) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint,`MeanBC(tube)cross-section`, fill = Treatment_tmp), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint, y = `MeanBC(tube)cross-section`, color = Treatment_tmp), cex = 2.5, alpha = 0.4, shape =20, position = position_jitterdodge(0.2,0.2,1.0))  + P1 +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  scale_y_continuous(limits = c(1,3.5))+
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.title = element_blank(), legend.position = "none", legend.direction = "horizontal", legend.box.background = element_rect(size = 0.8), legend.text = element_text(size = 6), panel.border = element_blank(), axis.line = element_line()) + ylab("Mean cross-section of BC (um2)") + xlab("Timepoint of infection") +
+ggplot2::ggsave("BCcrosssec_tabish_24_new_point.png", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("BCcrosssec_tabish_24_new_point.svg", path = "/Volumes/LAKSHMI2/Lakshmi_working_data_new/Dataset_To_tabish_FlowMethod/tabish_results/Analysis_tubeness_tabish/", width = 4, height = 5, units = "in", dpi = 300)
+
+
+
+tes_24_tabish_new <- t.test(
+    dat_tabish_24_temp %>% dplyr::filter(dat_tabish_24_temp$Treatment=="Treated") %>%
+    dplyr::select(TotalBCvolume) %>% as.matrix(), 
+    dat_tabish_24_temp %>% dplyr::filter(dat_tabish_24_temp$Treatment=="Untreated") %>%
+    dplyr::select(TotalBCvolume) %>% as.matrix() ,
+    alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+```
+
+
+
+
+
+
+
+
+
+
+

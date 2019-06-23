@@ -1,0 +1,279 @@
+``` {r}
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+library(grid)
+library(gridExtra)
+library(lattice)
+library(cluster)
+```
+
+
+```{r}
+dat <- readr::read_csv("I:/Lakshmi/Tubeness_infected_uninfected/Analysis/Tubeness_data_graph.csv")  # Input file i.e.csv: Change the input file accordingly 
+inf_data_treat <- dat %>% dplyr::filter(dat$Status == "inf" & dat$Status_temp == "Treated")
+uninf_data_treat <- dat %>% dplyr::filter(dat$Status == "uninf" & dat$Status_temp == "Treated")
+inf_data_untreat <- dat %>% dplyr::filter(dat$Status == "inf" & dat$Status_temp == "UnTreated")
+uninf_data_untreat <- dat %>% dplyr::filter(dat$Status == "uninf" & dat$Status_temp == "UnTreated")
+dat_untreated <- dat %>% dplyr::filter(dat$Status_temp == "UnTreated")
+dat_treated <- dat %>% dplyr::filter(dat$Status_temp == "Treated")
+```
+
+#----------------------------------------------------------------------------------------------------------------------------------
+#Below is the boxplots for the data (Each chunk corresponds to each parameters extracted from the segmented cells)
+#----------------------------------------------------------------------------------------------------------------------------------
+```{r}
+#Plot for the branch points of BC on salicylate treated and nontreated for infected and uninfected cells in 24hpi
+
+#T-test is done here for both salicylate treated and untreated between infected and uninfected cells
+tes_treat_bran <- t.test(dat_treated %>% dplyr::select(Branches) %>% as.matrix(), uninf_data_treat %>% dplyr::select(Branches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_bran <- t.test(dat_untreated %>% dplyr::select(Branches) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(Branches) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Treatment <- factor(dat$Treatment_new, levels = c('Salicylate_untreated', 'Salicylate_treated'), ordered = TRUE)
+Status1 <- factor(dat$Status, levels = c('uninf','inf'), ordered = TRUE)
+
+#This is to change the color of the jitter points of user's choice
+P <- scale_color_manual(dat$Status1,values = c("Turquoise3", "Red"))
+
+# Inside "geom_jitter" aes give the "shape = column name(Set)" to different the various experriments
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment, Branches, fill = Status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = Branches, color =Status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_bran$p.value,4)),x = 1, y = max(dat$Branches)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_bran$p.value,4)),x = 2, y = max(dat$Branches)), size = 3, fontface = "bold") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Number of branch points in Bile canaliculi") +
+  ggplot2::ggsave("Branch_Points.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Branch_Points.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for the avg. branch length of BC on salicylate treated and nontreated for infected and uninfected cells in 24hpi
+tes_treat_avg <- t.test(dat_treated %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), uninf_data_treat %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_avg <- t.test(dat_untreated %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+Treatment <- factor(dat$Treatment_new, levels = c('Salicylate_untreated', 'Salicylate_treated'), ordered = TRUE)
+Status1 <- factor(dat$Status, levels = c('uninf','inf'), ordered = TRUE)
+
+P <- scale_color_manual(dat$Status,values = c("Turquoise3", "Red"))
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment, AvgBranchLeg, fill = Status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = AvgBranchLeg, color = Status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_avg$p.value,4)),x = 1, y = max(dat$AvgBranchLeg)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_avg$p.value,4)),x = 2, y = max(dat$AvgBranchLeg)), size = 3, fontface = "bold") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Average branch length of Bile canaliculi (microns)") +
+  ggplot2::ggsave("Avg_branch_length.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Avg_branch_length.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for diameter of BC on salicylate treated and nontreated for infected and uninfected cells in 24hpi
+tes_treat_BCdia <- t.test(dat_treated %>% dplyr::select(BC_diameter) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_diameter) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_BCdia <- t.test(dat_untreated %>% dplyr::select(BC_diameter) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(BC_diameter) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+Treatment <- factor(dat$Treatment_new, levels = c('Salicylate_untreated', 'Salicylate_treated'), ordered = TRUE)
+Status1 <- factor(dat$Status, levels = c('uninf','inf'), ordered = TRUE)
+
+P <- scale_color_manual(dat$Status,values = c("Turquoise3", "Red"))
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment, BC_diameter, fill = Status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = BC_diameter, color = Status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_BCdia$p.value,4)),x = 1, y = max(BC_diameter)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_BCdia$p.value,4)),x = 2, y = max(BC_diameter)), size = 3, fontface = "bold") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Diameter of Bile canaliculi (microns)") +
+  ggplot2::ggsave("BC_diameter.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_diameter.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+#Plot for volume of BC on salicylate treated and nontreated for infected and uninfected cells in 24hpi
+tes_treat_vol <- t.test(dat_treated %>% dplyr::select(BC_Vol) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_untreat_vol <- t.test(dat_untreated %>% dplyr::select(BC_Vol) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(BC_Vol) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+Treatment <- factor(dat$Treatment_new, levels = c('Salicylate_untreated', 'Salicylate_treated'), ordered = TRUE)
+Status1 <- factor(dat$Status, levels = c('uninf','inf'), ordered = TRUE)
+
+P <- scale_color_manual(dat$Status,values = c("Turquoise3", "Red"))
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Treatment, BC_Vol, fill = Status), alpha = 0.0, width = 0.4, position = position_dodge(width = 0.5), varwidth = F, notch = T, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(Treatment, y = BC_Vol, color = Status1), cex = 1.2, alpha = 0.9, position = position_jitterdodge(0.2,0.2,0.5)) + P +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_untreat_vol$p.value,4)),x = 1, y = max(BC_Vol)), size = 3, fontface = "bold") +
+  geom_text(aes(label = sprintf("P-Val = %s\n", round(tes_treat_vol$p.value,4)),x = 2, y = max(BC_Vol)), size = 3, fontface = "bold") +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + ylab("Volume of Bile canaliculi (microns^3)") +
+  ggplot2::ggsave("BC_Vol.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("BC_Vol.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+#Below is the density plots for the data (Each chunk corresponds to each parameters extracted from the segmented cells for salicylate untreated condition)
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+
+```{r}
+# Density plot for nontreated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, Branches, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi (unexpanded)") +
+  ggplot2::ggsave("Density_Branch_Points_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_Branch_Points_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+# Density plot for nontreated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, AvgBranchLeg, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns) (unexpanded)") +
+  ggplot2::ggsave("Density_Avg_bran_leng_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_Avg_bran_leng_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+# Density plot for nontreated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, BC_diameter, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns) (unexpanded)") +
+  ggplot2::ggsave("Density_diameter_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_diameter_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for nontreated infected and uninfected cells in 24hpi (Volume of BC)
+ggplot2::ggplot(dat_untreated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, BC_Vol, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Volume of Bile canaliculi (microns^3) (unexpanded)") +
+  ggplot2::ggsave("Density_BC_vol_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_BC_vol_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#Below is the density plots for the data (Each chunk corresponds to each parameters extracted from the segmented cells for salicylate treated condition)
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (number of branch points in BC)
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, Branches, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Number of branch points in Bile canaliculi (Treated) (unexpanded)") +
+  ggplot2::ggsave("Density_Branch_Points_treated_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_Branch_Points_treated_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Average branch length of BC)
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, AvgBranchLeg, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Average branch length of Bile canaliculi (microns) (Treated) (unexpanded)") +
+  ggplot2::ggsave("Density_Avg_bran_leng_treated_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_Avg_bran_leng_treated_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+
+```{r}
+# Density plot for nontreated infected and uninfected cells in 24hpi (Diameter of BC)
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, BC_diameter, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Diameter of Bile canaliculi (microns) (Treated) (unexpanded)") +
+  ggplot2::ggsave("Density_diameter_treated_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_diameter_treated_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+# Density plot for treated infected and uninfected cells in 24hpi (Volume of BC)
+ggplot2::ggplot(dat_treated) +
+  ggplot2::geom_density(ggplot2::aes(group = Status, BC_Vol, color = Status, fill = Status), alpha = 0.2, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+  theme(axis.title = element_text(size=10, face = "bold")) + xlab("Volume of Bile canaliculi (microns^3) (Treated) (unexpanded)") +
+  ggplot2::ggsave("Density_BC_vol_treated_unexpand.png", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)+
+  ggplot2::ggsave("Density_BC_vol_treated_unexpand.svg", path = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/", width = 8, height = 8, units = "in", dpi = 300)
+```
+
+```{r}
+
+ks_treat_vol <- ks.test(inf_data_treat %>% dplyr::select(BC_Vol) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_Vol) %>% as.matrix())
+ks_treat_dia <- ks.test(inf_data_treat %>% dplyr::select(BC_diameter) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_diameter) %>% as.matrix())
+ks_treat_bran <- ks.test(inf_data_treat %>% dplyr::select(Branches) %>% as.matrix(), uninf_data_treat %>% dplyr::select(Branches) %>% as.matrix())
+
+```
+
+--------------------------------------------------------------------------------------------------
+#Cummulative distribution function plots
+-------------------------------------------------------------------------------------------------
+```{r}
+#CDF for branch points
+ks_untreat_bran <- ks.test(inf_data_untreat %>% dplyr::select(Branches) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(Branches) %>% as.matrix())
+ks_treat_bran <- ks.test(inf_data_treat %>% dplyr::select(Branches) %>% as.matrix(), uninf_data_treat %>% dplyr::select(Branches) %>% as.matrix())
+
+p1 <- ggplot(dat_untreated, aes(Branches, colour = Status)) + theme(legend.position = "none")+ geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate untreated") + xlab('Number of branch points in Bile canaliculi')
+p2 <- ggplot(dat_treated, aes(Branches, colour = Status)) + geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate treated") + xlab('Number of branch points in Bile canaliculi')
+
+g<-grid.arrange(p1,p2,ncol = 2) 
+ggsave(file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/CDF_branch_unexpand.png", g)
+```
+
+```{r}
+#CDF for BC volume
+ks_untreat_vol <- ks.test(inf_data_untreat %>% dplyr::select(BC_Vol) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(BC_Vol) %>% as.matrix())
+ks_treat_vol <- ks.test(inf_data_treat %>% dplyr::select(BC_Vol) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_Vol) %>% as.matrix())
+
+p1 <- ggplot(dat_untreated, aes(BC_Vol, colour = Status)) + theme(legend.position = "none")+ geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate untreated") + xlab('Volume of Bile canaliculi (microns^3)')
+p2 <- ggplot(dat_treated, aes(BC_Vol, colour = Status)) + geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate treated") + xlab('Volume of Bile canaliculi (microns^3)')
+
+g<-grid.arrange(p1,p2,ncol = 2) 
+ggsave(file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/CDF_BC_vol_unexpand.png", g)
+```
+
+```{r}
+#CDF for Average branch length of BC
+ks_untreat_avg <- ks.test(inf_data_untreat %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(AvgBranchLeg) %>% as.matrix())
+ks_treat_avg <- ks.test(inf_data_treat %>% dplyr::select(AvgBranchLeg) %>% as.matrix(), uninf_data_treat %>% dplyr::select(AvgBranchLeg) %>% as.matrix())
+
+p1 <- ggplot(dat_untreated, aes(AvgBranchLeg, colour = Status)) + theme(legend.position = "none")+ geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate untreated") + xlab('Average branch length of Bile canaliculi (microns)')
+p2 <- ggplot(dat_treated, aes(AvgBranchLeg, colour = Status)) + geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate treated") + xlab('Average branch length of Bile canaliculi (microns)')
+
+g<-grid.arrange(p1,p2,ncol = 2) 
+ggsave(file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/CDF_Avg_bran_leng_unexpand.png", g)
+```
+
+```{r}
+#CDF for Diameter of Bile canaliculi
+ks_untreat_dia <- ks.test(inf_data_untreat %>% dplyr::select(BC_diameter) %>% as.matrix(), uninf_data_untreat %>% dplyr::select(BC_diameter) %>% as.matrix())
+ks_treat_dia <- ks.test(inf_data_treat %>% dplyr::select(BC_diameter) %>% as.matrix(), uninf_data_treat %>% dplyr::select(BC_diameter) %>% as.matrix())
+
+p1 <- ggplot(dat_untreated, aes(BC_diameter, colour = Status)) + theme(legend.position = "none")+ geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate untreated") + xlab('Diameter of Bile canaliculi (microns)')
+p2 <- ggplot(dat_treated, aes(BC_diameter, colour = Status)) + geom_line(stat = "ecdf",size = 0.8) + ggtitle("Salicylate treated") + xlab('Diameter of Bile canaliculi (microns))')
+
+g<-grid.arrange(p1,p2,ncol = 2) 
+ggsave(file = "I:/Lakshmi/Tubeness_infected_uninfected/Analysis/CDF_BC_diam_unexpand.png", g)
+```
+
+
+  
+
+
+

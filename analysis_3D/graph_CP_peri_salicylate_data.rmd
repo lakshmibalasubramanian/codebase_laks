@@ -1,0 +1,82 @@
+# Script detail
+This is a graph to plot the output data from the CP perimetrics. This plot gives the summation of Intergrated intensity of bile canaliculi (CD13 channel) on the PVM for both the time points of infection i.e. 24 and 48hpi.
+
+```{r}
+# Intialising the necessary library
+library(ggplot2)
+library(dplyr)
+library(magrittr)
+```
+
+```{r}
+#Reading the csv file from the path
+#dat <- readr::read_csv("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master_copy.csv")
+dat <- readr::read_csv("/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_CP_perimetrics_salicylate_master_copy.csv")
+
+data_area <- readr::read_csv("/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail/Data_area_PVM_salicylate_master.csv")
+```
+
+```{r}
+#Boxplot for the integrated intensity of the CD13 on PVM
+
+kstest_treat_untreat <-
+  ks.test(
+  dat %>% filter(Timepoint == "Treated") %>% select(IntegratedIntensityCD13) %>% as.matrix(),
+  dat %>% filter(Timepoint == "Untreated") %>% select(IntegratedIntensityCD13) %>% as.matrix()
+)
+
+test_treat_untreat <- t.test(dat %>% filter(Timepoint == "Treated") %>% dplyr::select(IntegratedIntensityCD13) %>% as.matrix(), dat %>% filter(Timepoint == "Untreated") %>% dplyr::select(IntegratedIntensityCD13) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+# Below two lines: "factor" is the function to arrange the data in the preferred order in the graph
+Timepoint1 <- factor(dat$Timepoint, levels = c('Untreated', 'Treated'), ordered = TRUE)
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_boxplot(ggplot2::aes(Timepoint1, IntegratedIntensityCD13), outlier.color = NA, size =0.7, position = position_dodge(width = 0.8), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) + 
+  ggplot2::geom_jitter(ggplot2::aes(Timepoint1, y = IntegratedIntensityCD13, fill = Timepoint1), colour = "red", cex = 2.0, alpha = 0.7, position =position_jitterdodge(0.2,0.2,0.7))+
+  ggplot2::theme_bw()+ theme(axis.text = element_text(size=14, colour = "black", face = "bold")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line(colour = "black")) + ylab("Total intensity of Bile canaliculi \n on PVM") + xlab("Salicylate treatment (24hpi)") +
+
+  ggplot2::ggsave("boxplot_Perimetrics_sal2.png", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300) +
+  ggplot2::ggsave("boxplot_Perimetrics_sal2.svg", path ="/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300)
+
+
+
+ggplot2::ggplot(dat) +
+  ggplot2::geom_histogram(ggplot2::aes(IntegratedIntensityCD13, color = Timepoint1, fill = Timepoint1), stat = "bin", binwidth = 0.8, position = "dodge", alpha = 1.0, bins = 10) + scale_x_continuous(breaks=seq(0,30, by=5)) +
+   ggplot2::theme_bw()+ theme(axis.text = element_text(size=14, colour = "black", face = "bold")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line(colour = "black"))
+
+dat_new <- dat
+dat_new$bin_value <- NA
+dat_new$bin_value[dat$IntegratedIntensityCD13<0.05]<-"0"
+dat_new$bin_value[dat$IntegratedIntensityCD13>=0.05 & dat$IntegratedIntensityCD13<=1]<-"0.05-1"
+dat_new$bin_value[dat$IntegratedIntensityCD13>1 & dat$IntegratedIntensityCD13<=5]<-"1.0-5"
+dat_new$bin_value[dat$IntegratedIntensityCD13>5 & dat$IntegratedIntensityCD13<=10]<-"5.1-10"
+dat_new$bin_value[dat$IntegratedIntensityCD13>10 & dat$IntegratedIntensityCD13<=15]<-"10.1-15"
+dat_new$bin_value[dat$IntegratedIntensityCD13>15 & dat$IntegratedIntensityCD13<=20]<-"15.1-20"
+dat_new$bin_value[dat$IntegratedIntensityCD13>20 & dat$IntegratedIntensityCD13<=50]<-">20"
+
+bin_value1 <- factor(dat_new$bin_value, levels = c('0', '0.05-1', '1.0-5', '5.1-10', '10.1-15', '15.1-20', '>20'), ordered = TRUE)
+
+
+ggplot2::ggplot(dat_new) +
+  ggplot2::geom_bar(ggplot2::aes(bin_value1, color = Timepoint1, fill = Timepoint1), position = "dodge") +
+   ggplot2::theme_bw()+ theme(axis.text = element_text(size=14, colour = "black", face = "bold")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(), panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black"), axis.text.x = element_text(angle = 90))+ ylab("Frequency") + xlab("Total intensity of Bile canaliculi \n on PVM")+
+  ggplot2::ggsave("bar_graph_freq.png", path ="/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300) +
+  ggplot2::ggsave("bar_graph_freq.svg", path ="/media/lab-admin/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 4, height = 4, units = "in", dpi = 300)
+
+```
+
+```{r}
+#Density plot for the area of the PVM for both the time points
+data_area <- na.omit(data_area)
+ggplot2::ggplot(data_area) +
+  ggplot2::geom_density(ggplot2::aes(group = Timepoint, Area_PVM, color = Timepoint, fill = Timepoint), alpha = 0.3, size = 0.8)+
+   ggplot2::theme_bw() + theme(axis.text = element_text(size=8, colour = "black")) +
+   theme(axis.title = element_text(size=15, face = "bold")) + xlab("Area of PVM") +
+  ggplot2::ggsave("Area_distribution.png",
+                  path = "/Volumes/VS_lab_disk/cellprofiler_perimetrics_salicylate_trail", width = 8, height = 8, units = "in", dpi = 300)
+```
+
