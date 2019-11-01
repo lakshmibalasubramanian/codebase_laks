@@ -18,7 +18,6 @@ library(scatterplot3d)
 #Reading the data file
 #dat <- readr::read_csv("/home/lab-admin/LAKSHMI/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol/master_data.csv")
 
-
 dat <- readr::read_csv("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/SurfaceArea_analysis_new_Jun17/Analysis_SA_vol_24_48/master_data.csv")
 #dat$BC_SA_Vox <- dat$BC_SA_Vox/2 #This division by 2 is to consider the voxel just touching the pvm/hepatocytes
 
@@ -276,7 +275,8 @@ ggplot2::ggplot(dat_24_33_48_cells) +
 
 ```
 
-```{r}
+```{r} 
+#SA Voxels of BC Vs Volume of hepatocytes
 Status1 <- factor(dat_inf_uninf$Status, levels = c('UNINF', 'INF'), ordered = TRUE)
 P <- scale_color_manual(dat_inf_uninf$Status,values = c("blue", "Red"))
 ggplot2::ggplot(dat_inf_uninf) +
@@ -369,5 +369,132 @@ colors <- c("#999999", "#E69F00", "#56B4E9")
 colors <- colors[as.numeric(dat_inf_uninf_new$Timepoint)]
 scatterplot3d(x=dat_inf_uninf_new$Cell_Vol, y=dat_inf_uninf_new$BC_SA_Vox, z=dat_inf_uninf_new$Timepoint, color=colors)
 
+
+```
+
+
+```{r}
+#SA Voxels of BC Vs Volume of PVM
+ggplot2::ggplot(dat_PVM) +
+  ggplot2::geom_point(ggplot2::aes(dat_PVM$Cell_Vol, dat_PVM$BC_SA_Vox, shape = factor(dat_PVM$Timepoint)), size =3, alpha = 0.6) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.9,0.9), legend.direction = "vertical", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Volume of PVM") +
+ggplot2::ggsave("SA_Vox_BC_Vol_PVM.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_PVM_all <- cor.test(dat_PVM$Cell_Vol, dat_PVM$BC_SA_Vox, method = "pearson")
+
+
+dat_PVM_tmp<-dat_PVM %>% dplyr::filter(dat_PVM$Timepoint == "24hpi")
+#Status1 <- factor(dat_inf_uninf_tmp$Status, levels = c('UNINF', 'INF'), ordered = TRUE)
+#P <- scale_color_manual(dat_inf_uninf_tmp$Status,values = c("blue", "Red"))
+ggplot2::ggplot(dat_PVM_tmp) +
+  ggplot2::geom_point(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox), size =3, alpha = 0.6)+
+  ggplot2::geom_smooth(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox),method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.8,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Volume of PVM (24hpi)") +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_24.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_24.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_PVM_BC_24 <- cor.test(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox, method = "pearson")
+
+
+dat_PVM_tmp<-dat_PVM %>% dplyr::filter(dat_PVM$Timepoint == "33hpi")
+#Status1 <- factor(dat_inf_uninf_tmp$Status, levels = c('UNINF', 'INF'), ordered = TRUE)
+#P <- scale_color_manual(dat_inf_uninf_tmp$Status,values = c("blue", "Red"))
+ggplot2::ggplot(dat_PVM_tmp) +
+  ggplot2::geom_point(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox), size =3, alpha = 0.6)+ 
+  ggplot2::geom_smooth(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox),method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.8,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Volume of PVM (33hpi)") +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_33.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_33.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_PVM_BC_33 <- cor.test(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox, method = "pearson")
+
+
+
+dat_PVM_tmp<-dat_PVM %>% dplyr::filter(dat_PVM$Timepoint == "48hpi")
+#Status1 <- factor(dat_inf_uninf_tmp$Status, levels = c('UNINF', 'INF'), ordered = TRUE)
+#P <- scale_color_manual(dat_inf_uninf_tmp$Status,values = c("blue", "Red"))
+ggplot2::ggplot(dat_PVM_tmp) +
+  ggplot2::geom_point(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox), size =3, alpha = 0.6)+
+  ggplot2::geom_smooth(ggplot2::aes(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox), method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.8,0.9), legend.direction = "horizontal", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on PVM") + xlab("Volume of PVM (48hpi)") +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_48.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_Vol_PVM_48.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_PVM_BC_48 <- cor.test(dat_PVM_tmp$Cell_Vol, dat_PVM_tmp$BC_SA_Vox, method = "pearson")
+
+```
+
+
+```{r}
+#SA Voxels of BC on hep Vs Volume of PVM
+
+#dat_PVM_new <- dat_PVM
+
+#col_name_old <- c("X1", "Cell_Vol", "Cell_Surf_Vox", "cell_Surf_Pix", "cell_int_intensity", "BC_SA_Pix", "BC_SA_Vox", "BC_int_intensity", "Status", "File Name", "Timepoint")
+
+#col_name_PVM <- c("X1_PVM", "Cell_Vol_PVM", "Cell_Surf_Vox_PVM", "cell_Surf_Pix_PVM", "cell_int_intensity_PVM", "BC_SA_Pix_PVM", "BC_SA_Vox_PVM", "BC_int_intensity_PVM", "Status_PVM", "File Name_PVM", "Timepoint_PVM")
+
+
+#dat_PVM_new %>% rename_at(vars(col_name_old), ~col_name_PVM), toupper)
+
+#dat_PVM_new[col_name_PVM] <- sapply(dat_PVM_new[col_name_PVM], function(x) as.numeric(as.character(x)))
+
+dat_hep_PVM <- cbind(dat_inf_PVM,dat_PVM)
+
+write.csv(dat_inf_PVM,file = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/data_hep_PVM.csv")
+
+dat_hep_PVM_n <- readr::read_csv("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/data_hep_PVM.csv")
+
+dat_hep_PVM_tmp <- dat_hep_PVM_n
+
+ggplot2::ggplot(dat_hep_PVM_tmp) +
+  ggplot2::geom_point(ggplot2::aes(dat_hep_PVM_tmp$Cell_Vol_PVM, dat_hep_PVM_tmp$BC_SA_Vox, shape = factor(dat_hep_PVM_tmp$Timepoint)), size =3, alpha = 0.6) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.9,0.9), legend.direction = "vertical", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Volume of PVM") +
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_hep_pvm_all <- cor.test(dat_hep_PVM_tmp$Cell_Vol_PVM, dat_hep_PVM_tmp$BC_SA_Vox, method = "pearson")
+
+
+dat_hep_PVM_tmp_24hpi <- dat_hep_PVM_tmp %>%dplyr::filter(dat_hep_PVM_tmp$Timepoint == "24hpi")
+ggplot2::ggplot(dat_hep_PVM_tmp_24hpi) +
+  ggplot2::geom_point(ggplot2::aes(dat_hep_PVM_tmp_24hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_24hpi$BC_SA_Vox), size =3, alpha = 0.6) +
+  ggplot2::geom_smooth(ggplot2::aes(dat_hep_PVM_tmp_24hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_24hpi$BC_SA_Vox), method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.9,0.9), legend.direction = "vertical", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Volume of PVM (24hpi)") + 
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_24hpi.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_24hpi.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_hep_PVM_tmp_24hpi <- cor.test(dat_hep_PVM_tmp_24hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_24hpi$BC_SA_Vox, method = "pearson")
+
+
+dat_hep_PVM_tmp_33hpi <- dat_hep_PVM_tmp %>%dplyr::filter(dat_hep_PVM_tmp$Timepoint == "33hpi")
+ggplot2::ggplot(dat_hep_PVM_tmp_33hpi) +
+  ggplot2::geom_point(ggplot2::aes(dat_hep_PVM_tmp_33hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_33hpi$BC_SA_Vox), size =3, alpha = 0.6) +
+  ggplot2::geom_smooth(ggplot2::aes(dat_hep_PVM_tmp_33hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_33hpi$BC_SA_Vox), method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.9,0.9), legend.direction = "vertical", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Volume of PVM (33hpi)") + 
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_33hpi.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_33hpi.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_hep_PVM_tmp_33hpi <- cor.test(dat_hep_PVM_tmp_33hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_33hpi$BC_SA_Vox, method = "pearson")
+
+
+dat_hep_PVM_tmp_48hpi <- dat_hep_PVM_tmp %>%dplyr::filter(dat_hep_PVM_tmp$Timepoint == "48hpi")
+ggplot2::ggplot(dat_hep_PVM_tmp_48hpi) +
+  ggplot2::geom_point(ggplot2::aes(dat_hep_PVM_tmp_48hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_48hpi$BC_SA_Vox), size =3, alpha = 0.6) +
+  ggplot2::geom_smooth(ggplot2::aes(dat_hep_PVM_tmp_48hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_48hpi$BC_SA_Vox), method = "lm", se = FALSE) +
+  ggplot2::theme_bw()+theme(axis.text = element_text(size=14, face = "bold", colour = "black")) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), panel.border = element_blank(), legend.title = element_blank(), legend.position = c(0.9,0.9), legend.direction = "vertical", legend.box.background = element_rect(size = 0.1), legend.text = element_text(size = 6), axis.line = element_line()) + ylab("Surface voxels of BC on hepatocytes") + xlab("Volume of PVM (48hpi)") + 
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_48hpi.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("SA_Vox_BC_hep_Vol_PVM_48hpi.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Experiment6_images/Analysis_SA_Vol/", width = 4, height = 5, units = "in", dpi = 300)
+
+cor_dat_hep_PVM_tmp_48hpi <- cor.test(dat_hep_PVM_tmp_48hpi$Cell_Vol_PVM, dat_hep_PVM_tmp_48hpi$BC_SA_Vox, method = "pearson")
 
 ```
