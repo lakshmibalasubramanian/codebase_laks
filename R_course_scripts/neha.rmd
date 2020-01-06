@@ -1,0 +1,53 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# Variables & constants
+
+var1="This is a trail R code"
+var2="There are 48 students in this class with 3.5 grade"
+var3=52
+var4=8.5
+print(var3)
+#print(var1,var2,var3,var4)
+```
+
+```{r}
+
+la <- c(2,4,5,7,"neha",c(3,5,6),768,"program")
+
+la1 <- list(c(2,4,5,7,"neha"),c(3,5,6),768,"program")
+
+print(la1)
+print(la)
+
+      
+mdat<-matrix(c("green", "red",10), nrow = 4, ncol = 3, byrow = FALSE, dimnames = NULL)
+
+```
+
+```{r}
+#Create Ordinal categorical vector 
+day_vector <- c('evening', 'morning', 'afternoon', 'midday', 'midnight', 'evening')
+# Convert `day_vector` to a factor with ordered level
+factor_day <- factor(day_vector, levels =c('morning', 'midday', 'afternoon', 'evening', 'midnight'))
+# Print the new variable
+factor_day
+
+
+status1 <- factor(Status, c('Random', 'PVM'), ordered = TRUE)
+```
+
+```{r}
+trail_data <- data.frame(
+  student<-c("MSC","BSC"),
+  studentid<- c("MSC001","BSC001"),
+  StudentGender<-c("M", "F")
+)
+```
+
+
+
