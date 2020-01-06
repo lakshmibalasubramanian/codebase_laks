@@ -97,4 +97,5 @@ fc = subset(d,d$C1>=9)
 fc
 fc2 = subset(d,(d$C1 + d$C2)>=20)
 fc2
+
 ```{r}

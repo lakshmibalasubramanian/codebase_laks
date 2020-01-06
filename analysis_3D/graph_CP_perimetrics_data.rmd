@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # Script detail
 This is a graph to plot the output data from the CP perimetrics. This plot gives the summation of Intergrated intensity of bile canaliculi (CD13 channel) on the PVM for both the time points of infection i.e. 24 and 48hpi.
 
@@ -18,6 +23,28 @@ dat <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/CellProfiler_
 
 data_area <- readr::read_csv("/Volumes/LAKSHMI2/Lakshmi_working_data_new/CellProfiler_Perimetrics/Analysis_CP_Perimetrics/Data_area_PVM_master.csv")
 ```
+
+```{r}
+#Reading the csv file from the path for cellprofiler randomisation data
+
+
+dat_random <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_random_MIP_new_total.csv", delim = "\t")
+
+dat_random_int <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_MIP_new_24_33_int.csv", delim = "\t")
+
+
+
+dat_nuclei_int <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_MIP_nuclei_24_33_repeat.csv", delim = "\t")
+
+
+dat_random_10frames <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_MIP_10frames_24_33_.csv", delim = "\t")
+
+dat_random_10frames <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_MIP_10frames_33_pixels.csv", delim = "\t")
+
+
+dat_random_10frames <- readr::read_delim("/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/Analysis_MIP_10frames_24_33_trail.csv", delim = "\t")
+```
+
 
 ```{r}
 #Boxplot for the integrated intensity of the CD13 on PVM
@@ -82,4 +109,119 @@ ggplot2::ggplot(data_area) +
   ggplot2::ggsave("Area_distribution.png",
                   path = "/Users/lakshmibalasubramanian/Documents/Lakshmi/CellProfiler_Perimetrics/Analysis_CP_Perimetrics", width = 8, height = 8, units = "in", dpi = 300)
 ```
+
+
+```{r}
+
+ggplot2::ggplot(dat_random) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_random$Status, dat_random$IntIntensityBC), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_random$Status, y = dat_random$IntIntensityBC, fill= dat_random$Status), colour = "red", cex = 2.5, alpha = 0.4, shape=20, position = position_jitterdodge(0.3,0.3,1.0)) +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Total intensity of BC on PVM") + xlab("Association of Random/PVM with BC (24hpi)") +
+  ggplot2::ggsave("Random_cellprofiler.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Random_cellprofiler.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+  status1 <- factor(dat_random$Status, c('Random', 'PVM'), ordered = TRUE)
+P <- scale_color_manual(dat_random$Status,values = c("darkgreen", "Red"))
+ggplot2::ggplot(dat_random) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_random$Timepoint, dat_random$IntIntensityBC, fill = status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_random$Timepoint, y = dat_random$IntIntensityBC, color= status1), cex = 2.5, alpha = 0.4, shape=20, position = position_jitterdodge(0.3,0.3,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Total intensity of BC on PVM/Random") + xlab("Timepoint") +
+  ggplot2::ggsave("Random_PVM_cellprofiler_24_33.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Random_PVM_cellprofiler_24_33.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+
+```{r}
+status1 <- factor(dat_random_int$Status, c('Random', 'PVM'), ordered = TRUE)
+P <- scale_color_manual(dat_random_int$Status,values = c("darkgreen", "Red"))
+ggplot2::ggplot(dat_random_int) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_random_int$Timepoint, dat_random_int$IntegeratedIntBC, fill = status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_random_int$Timepoint, y = dat_random_int$IntegeratedIntBC, color= status1), cex = 2.5, alpha = 0.4, shape=20, position = position_jitterdodge(0.3,0.3,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Total intensity of BC on PVM/Random") + xlab("Timepoint") +
+  ggplot2::ggsave("Random_PVM_cellprofiler_24_33_int.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Random_PVM_cellprofiler_24_33_int.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300)
+```
+
+
+```{r}
+status1 <- factor(dat_nuclei_int$Status, c('Nuclei', 'PVM'), ordered = TRUE)
+P <- scale_color_manual(dat_nuclei_int$Status,values = c("darkgreen", "Red"))
+ggplot2::ggplot(dat_nuclei_int) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_nuclei_int$Timepoint, dat_nuclei_int$IntegeratedIntBC, fill = status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_nuclei_int$Timepoint, y = dat_nuclei_int$IntegeratedIntBC, color= status1), cex = 2.5, alpha = 0.4, shape=20, position = position_jitterdodge(0.3,0.3,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Total intensity of BC on Nuclei") + xlab("Timepoint") +
+  ggplot2::ggsave("Nuclei_PVM_cellprofiler_24_33_repeat.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Nuclei_PVM_cellprofiler_24_33_repeat.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300)
+  ```
+
+
+```{r}
+
+dat_random_int_24 <- dat_random_int %>% dplyr::filter(dat_random_int$Timepoint=="24hpi")
+dat_random_int_24_PVM <- dat_random_int_24 %>% dplyr::filter(dat_random_int_24$Status=="PVM")
+dat_random_int_24_Ran <- dat_random_int_24 %>% dplyr::filter(dat_random_int_24$Status=="Random")
+
+dat_random_int_33 <- dat_random_int %>% dplyr::filter(dat_random_int$Timepoint=="33hpi")
+dat_random_int_33_PVM <- dat_random_int_33 %>% dplyr::filter(dat_random_int_33$Status=="PVM")
+dat_random_int_33_Ran <- dat_random_int_33 %>% dplyr::filter(dat_random_int_33$Status=="Random")
+
+
+tes_dat_random_int_24 <- t.test(dat_random_int_24_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_random_int_24_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_dat_random_int_33 <- t.test(dat_random_int_33_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_random_int_33_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+
+dat_nuclei_int_24 <- dat_nuclei_int %>% dplyr::filter(dat_nuclei_int$Timepoint=="24hpi")
+dat_nuclei_int_24_PVM <- dat_nuclei_int_24 %>% dplyr::filter(dat_nuclei_int_24$Status=="PVM")
+dat_nuclei_int_24_Ran <- dat_nuclei_int_24 %>% dplyr::filter(dat_nuclei_int_24$Status=="Nuclei")
+
+dat_nuclei_int_33 <- dat_nuclei_int %>% dplyr::filter(dat_nuclei_int$Timepoint=="33hpi")
+dat_nuclei_int_33_PVM <- dat_nuclei_int_33 %>% dplyr::filter(dat_nuclei_int_33$Status=="PVM")
+dat_nuclei_int_33_Ran <- dat_nuclei_int_33 %>% dplyr::filter(dat_nuclei_int_33$Status=="Nuclei")
+
+dat_nuclei_int_48 <- dat_nuclei_int %>% dplyr::filter(dat_nuclei_int$Timepoint=="48hpi")
+dat_nuclei_int_48_PVM <- dat_nuclei_int_48 %>% dplyr::filter(dat_nuclei_int_48$Status=="PVM")
+dat_nuclei_int_48_Ran <- dat_nuclei_int_48 %>% dplyr::filter(dat_nuclei_int_48$Status=="Nuclei")
+
+tes_dat_nuclei_int_24 <- t.test(dat_nuclei_int_24_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_nuclei_int_24_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_dat_nuclei_int_33 <- t.test(dat_nuclei_int_33_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_nuclei_int_33_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+tes_dat_nuclei_int_48 <- t.test(dat_nuclei_int_48_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_nuclei_int_48_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+```
+
+```{r}
+status1 <- factor(dat_random_10frames$Status, c('Random', 'PVM'), ordered = TRUE)
+P <- scale_color_manual(dat_random_10frames$Status,values = c("darkgreen", "Red"))
+ggplot2::ggplot(dat_random_10frames) +
+  ggplot2::geom_boxplot(ggplot2::aes(dat_random_10frames$Timepoint, dat_random_10frames$IntegeratedIntBC, fill = status1), outlier.color = NA, size = 0.6, alpha = 0.0, width = 0.6, position = position_dodge(1), varwidth = F, notch = F, outlier.shape = NA, show.legend = FALSE) +
+  ggplot2::geom_jitter(ggplot2::aes(dat_random_10frames$Timepoint, y = dat_random_10frames$IntegeratedIntBC, color= status1), cex = 2.5, alpha = 0.4, shape=20, position = position_jitterdodge(0.3,0.3,1.0)) + P +
+  ggplot2::theme_bw() + theme(axis.text = element_text(size=14, face = "bold", colour = "black")) + 
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.title = element_text(size=15, face = "bold"), panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank(), legend.position = "none", panel.border = element_blank(), axis.line = element_line()) + ylab("Total intensity of BC on PVM/Random") + xlab("Timepoint") +
+  ggplot2::ggsave("Random_PVM_cellprofiler_33_pixels.png", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300) +
+  ggplot2::ggsave("Random_PVM_cellprofiler_33_pixels.svg", path = "/media/lakshmi/LAKSHMI2/Lakshmi_working_data_new/Cellprofiler_randomisation/", width = 4, height = 5, units = "in", dpi = 300)
+    ```
+
+```{r}
+
+dat_random_10frames_33 <- dat_random_10frames %>% dplyr::filter(dat_random_10frames$Timepoint=="33hpi")
+dat_random_10frames_33_PVM <- dat_random_10frames_33 %>% dplyr::filter(dat_random_10frames_33$Status=="PVM")
+dat_random_10frames_33_Ran <- dat_random_10frames_33 %>% dplyr::filter(dat_random_10frames_33$Status=="Random")
+
+tes_dat_random_10frames_33 <- t.test(dat_random_10frames_33_PVM %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), dat_random_10frames_33_Ran %>% dplyr::select(IntegeratedIntBC) %>% as.matrix(), alternative = c("two.sided"), paired = FALSE, var.equal = FALSE, conf.level = 0.95)
+
+```
+
 
