@@ -13,7 +13,7 @@ dat3 = dat1 + dat2
 
 dat4 = (dat1+dat2)*0.5
 dat4
-
+  
 mydat = data.frame(name,index,dat1,dat2,dat3) //This is creating the dataframe with the vectors
 mydat
 
