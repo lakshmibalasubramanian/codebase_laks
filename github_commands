@@ -6,3 +6,5 @@ These are the commands to use in github in terminal
 #>git push -u origin master
 	Username for 'https://github.com': lakshmibalasubramanian
 	Password for 'https://lakshmibalasubramanian@github.com': 
+
+#>git clone https://github.com/lakshmibalasubramanian/learning.git
